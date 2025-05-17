@@ -79,7 +79,8 @@ class Booking extends BaseController
                 'id' => $dish['id'],
                 'name' => $dish['name'],
                 'price' => $dish['price'],
-                'quantity' => $quantity
+                'quantity' => $quantity,
+                'is_vegetarian' => $dish['is_vegetarian'] ?? 1
             ];
         }
 
@@ -115,6 +116,44 @@ class Booking extends BaseController
         return redirect()->back()->with('success', 'Cart cleared');
     }
 
+    public function updateQuantity($id, $quantity)
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'You must be logged in to update cart'
+            ]);
+        }
+
+        // Validate quantity
+        $quantity = (int) $quantity;
+        if ($quantity < 1 || $quantity > 10) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid quantity. Must be between 1 and 10.'
+            ]);
+        }
+
+        $cart = session()->get('cart');
+
+        // Check if item exists in cart
+        if (!isset($cart[$id])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Item not found in cart'
+            ]);
+        }
+
+        // Update quantity
+        $cart[$id]['quantity'] = $quantity;
+        session()->set('cart', $cart);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Quantity updated successfully'
+        ]);
+    }
+
     public function checkout()
     {
         if (!session()->get('logged_in')) {
@@ -128,7 +167,6 @@ class Booking extends BaseController
         }
 
         $data['cart'] = $cart;
-        $data['slots'] = $this->deliverySlotModel->where('is_active', 1)->findAll();
         $data['total'] = $this->calculateTotal($cart);
 
         $userId = session()->get('user_id');
@@ -150,21 +188,15 @@ class Booking extends BaseController
         }
 
         $userId = session()->get('user_id');
-        $bookingDate = $this->request->getPost('booking_date');
-        $deliverySlotId = $this->request->getPost('delivery_slot_id');
         $paymentMethod = $this->request->getPost('payment_method');
         $totalAmount = $this->calculateTotal($cart);
 
-        // Validate booking date
-        if (!$bookingDate || strtotime($bookingDate) < strtotime(date('Y-m-d'))) {
-            return redirect()->back()->with('error', 'Invalid booking date');
-        }
+        // Set default booking date to tomorrow
+        $bookingDate = date('Y-m-d', strtotime('+1 day'));
 
-        // Validate delivery slot
-        $slot = $this->deliverySlotModel->find($deliverySlotId);
-        if (!$slot) {
-            return redirect()->back()->with('error', 'Invalid delivery slot');
-        }
+        // Set default delivery slot (first active slot)
+        $defaultSlot = $this->deliverySlotModel->where('is_active', 1)->first();
+        $deliverySlotId = $defaultSlot ? $defaultSlot['id'] : null;
 
         // Check wallet balance if payment method is wallet
         if ($paymentMethod == 'wallet') {
@@ -191,7 +223,7 @@ class Booking extends BaseController
         $bookingData = [
             'user_id' => $userId,
             'booking_date' => $bookingDate,
-            'delivery_slot_id' => $deliverySlotId,
+            'delivery_slot_id' => $deliverySlotId ?? null,
             'total_amount' => $totalAmount,
             'status' => 'pending',
             'payment_method' => $paymentMethod

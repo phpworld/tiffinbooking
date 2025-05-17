@@ -127,6 +127,7 @@ class Admin extends BaseController
                     'description' => $this->request->getPost('description'),
                     'price' => $this->request->getPost('price'),
                     'available' => $this->request->getPost('available') ? 1 : 0,
+                    'is_vegetarian' => $this->request->getPost('is_vegetarian') ? 1 : 0,
                 ];
 
                 // Handle image upload if provided
@@ -179,6 +180,7 @@ class Admin extends BaseController
                     'description' => $this->request->getPost('description'),
                     'price' => $this->request->getPost('price'),
                     'available' => $this->request->getPost('available') ? 1 : 0,
+                    'is_vegetarian' => $this->request->getPost('is_vegetarian') ? 1 : 0,
                 ];
 
                 // Handle image upload if a new one is provided

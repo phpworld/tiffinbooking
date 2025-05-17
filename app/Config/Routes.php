@@ -38,6 +38,17 @@ $routes->get('/booking/remove-from-cart/(:num)', 'Booking::removeFromCart/$1');
 $routes->get('/booking/clear-cart', 'Booking::clearCart');
 $routes->get('/booking/checkout', 'Booking::checkout');
 $routes->post('/booking/place-order', 'Booking::placeOrder');
+$routes->get('/booking/update-quantity/(:num)/(:num)', 'Booking::updateQuantity/$1/$2');
+
+// Review Routes
+$routes->get('/review/create/(:num)', 'Review::create/$1');
+$routes->post('/review/store', 'Review::store');
+$routes->post('/review/store-dish-review', 'Review::storeDishReview');
+
+// Admin Review Routes
+$routes->get('/admin/reviews', 'Review::index');
+$routes->get('/admin/reviews/view/(:num)', 'Review::view/$1');
+$routes->get('/admin/reviews/delete/(:num)', 'Review::delete/$1');
 
 // Admin Routes
 $routes->get('/admin', 'Admin::index');

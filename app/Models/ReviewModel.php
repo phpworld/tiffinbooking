@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DishModel extends Model
+class ReviewModel extends Model
 {
-    protected $table            = 'dishes';
+    protected $table            = 'reviews';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['name', 'description', 'price', 'image', 'available', 'is_vegetarian'];
+    protected $allowedFields    = ['user_id', 'booking_id', 'rating', 'comment'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -29,8 +29,9 @@ class DishModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'name'  => 'required|min_length[3]|max_length[100]',
-        'price' => 'required|numeric',
+        'user_id'    => 'required|numeric',
+        'booking_id' => 'required|numeric',
+        'rating'     => 'required|numeric|greater_than[0]|less_than[6]',
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;

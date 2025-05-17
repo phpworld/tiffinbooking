@@ -25,7 +25,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($cart as $item): 
+                            <?php foreach ($cart as $item):
                                 $subtotal = $item['price'] * $item['quantity'];
                             ?>
                                 <tr>
@@ -46,28 +46,15 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="card">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0"><i class="fas fa-credit-card"></i> Payment Information</h5>
             </div>
             <div class="card-body">
                 <form action="<?= base_url('/booking/place-order') ?>" method="post">
-                    <div class="mb-3">
-                        <label for="booking_date" class="form-label">Delivery Date</label>
-                        <input type="date" class="form-control" id="booking_date" name="booking_date" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="delivery_slot_id" class="form-label">Delivery Time Slot</label>
-                        <select class="form-select" id="delivery_slot_id" name="delivery_slot_id" required>
-                            <option value="">Select a time slot</option>
-                            <?php foreach ($slots as $slot): ?>
-                                <option value="<?= $slot['id'] ?>"><?= $slot['slot_time'] ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
+                    <!-- Delivery date and time slot removed as requested -->
+
                     <div class="mb-4">
                         <label class="form-label">Payment Method</label>
                         <div class="form-check">
@@ -86,7 +73,7 @@
                             </label>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success btn-lg" <?= ($wallet['balance'] ?? 0) < $total ? 'disabled' : '' ?>>
                             <i class="fas fa-check-circle"></i> Place Order
@@ -101,7 +88,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="card sticky-top" style="top: 20px;">
             <div class="card-header bg-info text-white">
@@ -110,17 +97,17 @@
             <div class="card-body">
                 <p><strong>Total Items:</strong> <?= array_sum(array_column($cart, 'quantity')) ?></p>
                 <p><strong>Total Amount:</strong> ₹<?= number_format($total, 2) ?></p>
-                
+
                 <hr>
-                
+
                 <div class="alert alert-info">
                     <h6><i class="fas fa-truck"></i> Delivery Information</h6>
-                    <p class="mb-0">Your tiffin will be delivered on the selected date and time slot.</p>
+                    <p class="mb-0">Your tiffin will be delivered as per our standard delivery schedule.</p>
                 </div>
-                
+
                 <div class="alert alert-warning">
                     <h6><i class="fas fa-exclamation-triangle"></i> Cancellation Policy</h6>
-                    <p class="mb-0">Orders can be cancelled up to 2 hours before the delivery time. Cancelled orders paid through wallet will be refunded.</p>
+                    <p class="mb-0">Only pending orders can be cancelled. Once an order is confirmed by the admin, it cannot be cancelled. Cancelled orders paid through wallet will be refunded.</p>
                 </div>
             </div>
         </div>
@@ -134,7 +121,7 @@
         const submitButton = document.querySelector('button[type="submit"]');
         const walletBalance = <?= ($wallet['balance'] ?? 0) ?>;
         const orderTotal = <?= $total ?>;
-        
+
         function updateSubmitButton() {
             if (walletRadio.checked && walletBalance < orderTotal) {
                 submitButton.disabled = true;
@@ -142,7 +129,7 @@
                 submitButton.disabled = false;
             }
         }
-        
+
         walletRadio.addEventListener('change', updateSubmitButton);
         cashRadio.addEventListener('change', updateSubmitButton);
     });

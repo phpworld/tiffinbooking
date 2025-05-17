@@ -35,9 +35,22 @@
                 <div class="form-text">Upload an image of the dish (Max size: 1MB, Formats: JPG, PNG, GIF)</div>
             </div>
 
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="available" name="available" value="1" <?= old('available') ? 'checked' : '' ?> checked>
-                <label class="form-check-label" for="available">Available for ordering</label>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="available" name="available" value="1" <?= old('available') ? 'checked' : '' ?> checked>
+                        <label class="form-check-label" for="available">Available for ordering</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="is_vegetarian" name="is_vegetarian" value="1" <?= old('is_vegetarian', 1) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="is_vegetarian">
+                            <span class="text-success"><i class="fas fa-leaf"></i> Vegetarian</span>
+                        </label>
+                        <div class="form-text">Uncheck for non-vegetarian dishes</div>
+                    </div>
+                </div>
             </div>
 
             <div class="d-grid gap-2">

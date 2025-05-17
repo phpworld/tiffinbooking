@@ -185,6 +185,11 @@ class User extends BaseController
             return redirect()->to('/user/bookings')->with('error', 'Cannot cancel a delivered booking');
         }
 
+        // Prevent cancellation if the booking is confirmed by admin
+        if ($booking['status'] == 'confirmed') {
+            return redirect()->to('/user/bookings')->with('error', 'Cannot cancel a confirmed booking. Please contact customer support for assistance.');
+        }
+
         // Update booking status
         $this->bookingModel->update($id, ['status' => 'cancelled']);
 

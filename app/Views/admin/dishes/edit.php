@@ -23,12 +23,12 @@
                     <input type="number" class="form-control" id="price" name="price" value="<?= old('price', $dish['price']) ?>" step="0.01" min="0" required>
                 </div>
             </div>
-            
+
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
                 <textarea class="form-control" id="description" name="description" rows="4"><?= old('description', $dish['description']) ?></textarea>
             </div>
-            
+
             <div class="mb-3">
                 <?php if ($dish['image']): ?>
                     <div class="mb-3">
@@ -38,17 +38,30 @@
                         </div>
                     </div>
                 <?php endif; ?>
-                
+
                 <label for="image" class="form-label">Change Image</label>
                 <input type="file" class="form-control" id="image" name="image" accept="image/*">
                 <div class="form-text">Upload a new image to replace the current one (Max size: 1MB, Formats: JPG, PNG, GIF)</div>
             </div>
-            
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="available" name="available" value="1" <?= old('available', $dish['available']) ? 'checked' : '' ?>>
-                <label class="form-check-label" for="available">Available for ordering</label>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="available" name="available" value="1" <?= old('available', $dish['available']) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="available">Available for ordering</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="is_vegetarian" name="is_vegetarian" value="1" <?= old('is_vegetarian', $dish['is_vegetarian'] ?? 1) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="is_vegetarian">
+                            <span class="text-success"><i class="fas fa-leaf"></i> Vegetarian</span>
+                        </label>
+                        <div class="form-text">Uncheck for non-vegetarian dishes</div>
+                    </div>
+                </div>
             </div>
-            
+
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Update Dish

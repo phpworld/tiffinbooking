@@ -23,6 +23,7 @@
                             <th>Image</th>
                             <th>Name</th>
                             <th>Price</th>
+                            <th>Type</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -42,6 +43,17 @@
                                 </td>
                                 <td><?= $dish['name'] ?></td>
                                 <td>₹<?= number_format($dish['price'], 2) ?></td>
+                                <td>
+                                    <?php if ($dish['is_vegetarian'] ?? true): ?>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-leaf me-1"></i> Vegetarian
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-drumstick-bite me-1"></i> Non-Vegetarian
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <?php if ($dish['available']): ?>
                                         <span class="badge bg-success">Available</span>

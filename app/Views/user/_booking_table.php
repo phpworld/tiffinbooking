@@ -54,7 +54,7 @@
                             <a href="<?= base_url('/user/bookings/view/' . $booking['id']) ?>" class="btn btn-sm btn-info text-white">
                                 <i class="fas fa-eye"></i> View
                             </a>
-                            <?php if ($booking['status'] == 'pending' || $booking['status'] == 'confirmed'): ?>
+                            <?php if ($booking['status'] == 'pending'): ?>
                                 <a href="<?= base_url('/user/bookings/cancel/' . $booking['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">
                                     <i class="fas fa-times"></i> Cancel
                                 </a>
