@@ -12,7 +12,7 @@ class WalletTransactionModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'type', 'amount', 'description'];
+    protected $allowedFields    = ['wallet_id', 'type', 'amount', 'description'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -29,9 +29,9 @@ class WalletTransactionModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'user_id' => 'required|numeric',
-        'type'    => 'required|in_list[credit,debit]',
-        'amount'  => 'required|numeric',
+        'wallet_id' => 'required|numeric',
+        'type'      => 'required|in_list[credit,debit]',
+        'amount'    => 'required|numeric',
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;

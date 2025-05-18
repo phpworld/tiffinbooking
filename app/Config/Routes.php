@@ -84,3 +84,47 @@ $routes->get('/admin/delivery-slots/delete/(:num)', 'Admin::deleteSlot/$1');
 
 // Admin Reports
 $routes->get('/admin/reports', 'Admin::reports');
+
+// API Routes
+$routes->group('api', function($routes) {
+    // Test API Route
+    $routes->get('test', 'Api\Test::index');
+
+    // Debug API Routes
+    $routes->get('debug', 'Api\Debug::index');
+    $routes->post('debug/login', 'Api\Debug::login');
+
+    // Auth API Routes
+    $routes->post('auth/login', 'Api\Auth::login');
+    $routes->post('auth/register', 'Api\Auth::register');
+
+    // Public API Routes
+    $routes->get('dishes', 'Api\Dishes::index');
+    $routes->get('dishes/(:num)', 'Api\Dishes::view/$1');
+    $routes->get('reviews/dish/(:num)', 'Api\Review::getDishReviews/$1');
+
+    // Protected API Routes
+    $routes->group('', ['filter' => 'jwt'], function($routes) {
+        // User Profile
+        $routes->get('user/profile', 'Api\User::profile');
+        $routes->post('user/update-profile', 'Api\User::updateProfile');
+
+        // Cart & Booking
+        $routes->get('cart', 'Api\Cart::index');
+        $routes->post('cart/add', 'Api\Cart::add');
+        $routes->post('cart/update', 'Api\Cart::update');
+        $routes->post('cart/remove', 'Api\Cart::remove');
+        $routes->post('cart/clear', 'Api\Cart::clear');
+        $routes->post('booking/place-order', 'Api\Booking::placeOrder');
+        $routes->get('bookings', 'Api\Booking::index');
+        $routes->get('bookings/(:num)', 'Api\Booking::view/$1');
+        $routes->post('bookings/cancel/(:num)', 'Api\Booking::cancel/$1');
+
+        // Reviews
+        $routes->post('reviews/add', 'Api\Review::add');
+
+        // Wallet
+        $routes->get('wallet', 'Api\Wallet::index');
+        $routes->post('wallet/recharge', 'Api\Wallet::recharge');
+    });
+});
