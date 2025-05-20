@@ -4,86 +4,65 @@
 <!-- Banner Slider Section -->
 <div class="banner-slider swiper mb-5">
     <div class="swiper-wrapper">
-        <!-- Slide 1 -->
-        <div class="swiper-slide">
-            <div class="banner-slide position-relative">
-                <img src="https://images.unsplash.com/photo-1596797038530-2c107229654b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80" class="w-100" alt="Tiffin Service" style="height: 450px; object-fit: cover; filter: brightness(0.6);">
-                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center text-center text-white p-4">
-                    <div class="container banner-content">
-                        <h1 class="display-4 fw-bold mb-3">
-                            Delicious <span class="text-accent">Homemade</span> <span class="text-primary">Tiffin</span>
-                        </h1>
-                        <p class="lead mx-auto mb-4" style="max-width: 600px;">
-                            Fresh, healthy meals delivered to your doorstep
-                        </p>
-                        <div class="d-flex justify-content-center gap-3">
-                            <a href="<?= base_url('/dishes') ?>" class="btn btn-primary px-4">
-                                <i class="fas fa-utensils me-2"></i> View Menu
-                            </a>
-                            <?php if (!session()->get('logged_in')): ?>
-                                <a href="<?= base_url('/auth/register') ?>" class="btn btn-light px-4">
-                                    <i class="fas fa-user-plus me-2"></i> Sign Up
+        <?php if (empty($banners)): ?>
+            <!-- Default Banner Slide -->
+            <div class="swiper-slide">
+                <div class="banner-slide position-relative">
+                    <img src="https://images.unsplash.com/photo-1596797038530-2c107229654b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80" class="w-100" alt="Tiffin Service" style="height: 450px; object-fit: cover; filter: brightness(0.6);">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center text-center text-white p-4">
+                        <div class="container banner-content">
+                            <h1 class="display-4 fw-bold mb-3">
+                                Delicious <span class="text-accent">Homemade</span> <span class="text-primary">Tiffin</span>
+                            </h1>
+                            <p class="lead mx-auto mb-4" style="max-width: 600px;">
+                                Fresh, healthy meals delivered to your doorstep
+                            </p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="<?= base_url('/dishes') ?>" class="btn btn-primary px-4">
+                                    <i class="fas fa-utensils me-2"></i> View Menu
                                 </a>
-                            <?php else: ?>
-                                <a href="<?= base_url('/booking/create') ?>" class="btn btn-success px-4">
-                                    <i class="fas fa-shopping-cart me-2"></i> Order Now
-                                </a>
-                            <?php endif; ?>
+                                <?php if (!session()->get('logged_in')): ?>
+                                    <a href="<?= base_url('/auth/register') ?>" class="btn btn-light px-4">
+                                        <i class="fas fa-user-plus me-2"></i> Sign Up
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= base_url('/booking/create') ?>" class="btn btn-success px-4">
+                                        <i class="fas fa-shopping-cart me-2"></i> Order Now
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Slide 2 -->
-        <div class="swiper-slide">
-            <div class="banner-slide position-relative">
-                <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80" class="w-100" alt="Tiffin Service" style="height: 450px; object-fit: cover; filter: brightness(0.6);">
-                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center text-center text-white p-4">
-                    <div class="container banner-content">
-                        <h1 class="display-4 fw-bold mb-3">
-                            Healthy <span class="text-accent">Nutritious</span> <span class="text-primary">Meals</span>
-                        </h1>
-                        <p class="lead mx-auto mb-4" style="max-width: 600px;">
-                            Prepared with love using fresh ingredients
-                        </p>
-                        <div class="d-flex justify-content-center gap-3">
-                            <a href="<?= base_url('/dishes') ?>" class="btn btn-primary px-4">
-                                <i class="fas fa-utensils me-2"></i> Explore Menu
-                            </a>
+        <?php else: ?>
+            <?php foreach ($banners as $banner): ?>
+                <div class="swiper-slide">
+                    <div class="banner-slide position-relative">
+                        <img src="<?= base_url('/uploads/banners/' . $banner['image']) ?>" class="w-100" alt="<?= $banner['title'] ?>" style="height: 450px; object-fit: cover; filter: brightness(0.6);">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center text-center text-white p-4">
+                            <div class="container banner-content">
+                                <h1 class="display-4 fw-bold mb-3">
+                                    <?= $banner['title'] ?>
+                                </h1>
+                                <?php if ($banner['subtitle']): ?>
+                                    <p class="lead mx-auto mb-4" style="max-width: 600px;">
+                                        <?= $banner['subtitle'] ?>
+                                    </p>
+                                <?php endif; ?>
+                                <?php if ($banner['button_text'] && $banner['button_link']): ?>
+                                    <div class="d-flex justify-content-center gap-3">
+                                        <a href="<?= base_url($banner['button_link']) ?>" class="btn btn-primary px-4">
+                                            <?= $banner['button_text'] ?>
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="swiper-slide">
-            <div class="banner-slide position-relative">
-                <img src="https://images.unsplash.com/photo-1505253758473-96b7015fcd40?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80" class="w-100" alt="Tiffin Service" style="height: 450px; object-fit: cover; filter: brightness(0.6);">
-                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center text-center text-white p-4">
-                    <div class="container banner-content">
-                        <h1 class="display-4 fw-bold mb-3">
-                            Fast <span class="text-accent">Reliable</span> <span class="text-primary">Delivery</span>
-                        </h1>
-                        <p class="lead mx-auto mb-4" style="max-width: 600px;">
-                            Hot meals delivered right to your doorstep
-                        </p>
-                        <div class="d-flex justify-content-center gap-3">
-                            <?php if (!session()->get('logged_in')): ?>
-                                <a href="<?= base_url('/auth/register') ?>" class="btn btn-primary px-4">
-                                    <i class="fas fa-user-plus me-2"></i> Join Now
-                                </a>
-                            <?php else: ?>
-                                <a href="<?= base_url('/booking/create') ?>" class="btn btn-success px-4">
-                                    <i class="fas fa-shopping-cart me-2"></i> Order Now
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 
     <!-- Pagination -->

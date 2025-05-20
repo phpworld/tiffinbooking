@@ -260,6 +260,7 @@ class Booking extends BaseController
                 // Add transaction record for the payment
                 $transactionData = [
                     'wallet_id' => $wallet['id'],
+                    'user_id' => $userId,
                     'amount' => $total,
                     'type' => 'debit',
                     'description' => 'Payment for order #' . $bookingId
@@ -347,6 +348,7 @@ class Booking extends BaseController
         // Add transaction record for the refund
         $transactionData = [
             'wallet_id' => $wallet['id'],
+            'user_id' => $userId,
             'amount' => $refundAmount,
             'type' => 'credit',
             'description' => 'Refund for cancelled order #' . $id

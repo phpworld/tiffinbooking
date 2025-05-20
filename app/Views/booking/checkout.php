@@ -67,6 +67,12 @@
                             </label>
                         </div>
                         <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="razorpay" value="razorpay">
+                            <label class="form-check-label" for="razorpay">
+                                <img src="https://razorpay.com/assets/razorpay-logo.svg" alt="Razorpay" height="20"> Pay Online (Credit/Debit Card, UPI, etc.)
+                            </label>
+                        </div>
+                        <div class="form-check">
                             <input class="form-check-input" type="radio" name="payment_method" id="cash" value="cash">
                             <label class="form-check-label" for="cash">
                                 Cash on Delivery
@@ -75,12 +81,12 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success btn-lg" <?= ($wallet['balance'] ?? 0) < $total ? 'disabled' : '' ?>>
+                        <button type="button" id="placeOrderBtn" class="btn btn-success btn-lg" <?= ($wallet['balance'] ?? 0) < $total && !isset($_POST['payment_method']) ? 'disabled' : '' ?>>
                             <i class="fas fa-check-circle"></i> Place Order
                         </button>
                         <?php if (($wallet['balance'] ?? 0) < $total): ?>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i> Your wallet balance is insufficient. Please select Cash on Delivery or <a href="<?= base_url('/user/wallet/recharge') ?>" class="alert-link">recharge your wallet</a>.
+                            <div class="alert alert-warning wallet-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Your wallet balance is insufficient. Please select another payment method or <a href="<?= base_url('/user/wallet/recharge') ?>" class="alert-link">recharge your wallet</a>.
                             </div>
                         <?php endif; ?>
                     </div>
@@ -114,24 +120,130 @@
     </div>
 </div>
 
+<!-- Include Razorpay JS SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const walletRadio = document.getElementById('wallet');
+        const razorpayRadio = document.getElementById('razorpay');
         const cashRadio = document.getElementById('cash');
-        const submitButton = document.querySelector('button[type="submit"]');
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        const orderForm = document.querySelector('form');
         const walletBalance = <?= ($wallet['balance'] ?? 0) ?>;
         const orderTotal = <?= $total ?>;
+        const walletWarning = document.querySelector('.wallet-warning');
 
         function updateSubmitButton() {
             if (walletRadio.checked && walletBalance < orderTotal) {
-                submitButton.disabled = true;
+                placeOrderBtn.disabled = true;
+                if (walletWarning) walletWarning.style.display = 'block';
             } else {
-                submitButton.disabled = false;
+                placeOrderBtn.disabled = false;
+                if (walletWarning) walletWarning.style.display = 'none';
             }
         }
 
         walletRadio.addEventListener('change', updateSubmitButton);
+        razorpayRadio.addEventListener('change', updateSubmitButton);
         cashRadio.addEventListener('change', updateSubmitButton);
+
+        // Handle place order button click
+        placeOrderBtn.addEventListener('click', function() {
+            // If Razorpay is selected, initiate Razorpay payment
+            if (razorpayRadio.checked) {
+                initiateRazorpayPayment();
+            } else {
+                // For wallet or cash, submit the form directly
+                orderForm.submit();
+            }
+        });
+
+        // Function to initiate Razorpay payment
+        function initiateRazorpayPayment() {
+            // Disable the button and show loading
+            placeOrderBtn.disabled = true;
+            placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+
+            // Create a form to submit to the server to create an order
+            const formData = new FormData();
+            formData.append('amount', orderTotal);
+            formData.append('payment_method', 'razorpay');
+
+            // Send request to create Razorpay order
+            fetch('<?= base_url('/booking/create-order') ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Initialize Razorpay payment
+                const options = {
+                    key: '<?= getenv('razorpay.key_id') ?: 'rzp_test_XaZ89XsD6ejHqt' ?>',
+                    amount: data.amount,
+                    currency: 'INR',
+                    name: 'Tiffin Delight',
+                    description: 'Order Payment',
+                    order_id: data.order_id,
+                    handler: function(response) {
+                        // On successful payment, add payment details to form and submit
+                        const razorpayPaymentId = document.createElement('input');
+                        razorpayPaymentId.type = 'hidden';
+                        razorpayPaymentId.name = 'razorpay_payment_id';
+                        razorpayPaymentId.value = response.razorpay_payment_id;
+                        orderForm.appendChild(razorpayPaymentId);
+
+                        const razorpayOrderId = document.createElement('input');
+                        razorpayOrderId.type = 'hidden';
+                        razorpayOrderId.name = 'razorpay_order_id';
+                        razorpayOrderId.value = response.razorpay_order_id;
+                        orderForm.appendChild(razorpayOrderId);
+
+                        const razorpaySignature = document.createElement('input');
+                        razorpaySignature.type = 'hidden';
+                        razorpaySignature.name = 'razorpay_signature';
+                        razorpaySignature.value = response.razorpay_signature;
+                        orderForm.appendChild(razorpaySignature);
+
+                        // Submit the form
+                        orderForm.submit();
+                    },
+                    prefill: {
+                        name: '<?= session()->get('name') ?>',
+                        email: '<?= session()->get('email') ?>',
+                        contact: ''
+                    },
+                    theme: {
+                        color: '#4CAF50'
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            // Re-enable the button
+                            placeOrderBtn.disabled = false;
+                            placeOrderBtn.innerHTML = '<i class="fas fa-check-circle"></i> Place Order';
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to process payment: ' + error.message);
+
+                // Re-enable the button
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.innerHTML = '<i class="fas fa-check-circle"></i> Place Order';
+            });
+        }
+
+        // Initialize the form
+        updateSubmitButton();
     });
 </script>
 <?= $this->endSection() ?>

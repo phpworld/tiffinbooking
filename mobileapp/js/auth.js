@@ -40,11 +40,7 @@ function loginUser(email, password) {
         localStorage.setItem(CONFIG.STORAGE_TOKEN_KEY, data.token);
         localStorage.setItem(CONFIG.STORAGE_USER_KEY, JSON.stringify(data.user));
 
-        // Special case for viashnavisingh@gmail.com - set wallet balance to 1600
-        if (email.toLowerCase() === 'viashnavisingh@gmail.com') {
-            console.log('Setting special wallet balance for viashnavisingh@gmail.com');
-            localStorage.setItem('wallet_balance', '1600');
-        }
+        
 
         toggleLoading(false);
         return data.user;

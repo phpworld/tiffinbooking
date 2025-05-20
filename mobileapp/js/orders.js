@@ -10,9 +10,16 @@ function getOrders() {
     // Get token to ensure we're authenticated
     const token = localStorage.getItem(CONFIG.STORAGE_TOKEN_KEY);
 
+    if (!token) {
+        console.error('No authentication token found');
+        return Promise.reject(new Error('Authentication required'));
+    }
+
     // Add a timestamp to prevent caching
     const timestamp = new Date().getTime();
     const url = `${API.BOOKING.LIST}?_=${timestamp}`;
+
+    console.log('Fetching orders from:', url);
 
     return axios.get(url, {
         headers: {
@@ -27,16 +34,26 @@ function getOrders() {
         console.log('Orders API response:', response.data);
 
         // Check if response has the expected structure
-        if (response.data && response.data.data) {
+        if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
+            // Standard API response format
+            return response.data.data;
+        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+            // Alternative API response format
             return response.data.data;
         } else if (response.data && Array.isArray(response.data)) {
             // Some APIs might return the array directly
             return response.data;
-        } else {
-            // Return empty array if data is not in expected format
-            console.warn('Orders API returned unexpected data format');
-            return [];
+        } else if (response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
+            // If it's an object but not an array, check if it has order properties
+            if (response.data.id && response.data.status) {
+                // It's a single order, wrap it in an array
+                return [response.data];
+            }
         }
+
+        // Return empty array if data is not in expected format
+        console.warn('Orders API returned unexpected data format:', response.data);
+        return [];
     })
     .catch(error => {
         console.error('Error fetching orders:', error);
@@ -350,18 +367,27 @@ function loadOrders() {
  * @param {Array} orders - The orders data
  */
 function renderOrders(orders) {
-    // Filter orders by status
-    const activeOrders = orders.filter(order =>
-        ['pending', 'confirmed', 'preparing', 'out_for_delivery'].includes(order.status.toLowerCase())
-    );
+    console.log('Rendering orders:', orders);
 
-    const completedOrders = orders.filter(order =>
-        order.status.toLowerCase() === 'delivered'
-    );
+    // Filter orders by status - ensure case-insensitive comparison and handle different API formats
+    const activeOrders = orders.filter(order => {
+        const status = (order.status || '').toLowerCase();
+        return ['pending', 'confirmed', 'preparing', 'out_for_delivery'].includes(status);
+    });
 
-    const cancelledOrders = orders.filter(order =>
-        order.status.toLowerCase() === 'cancelled'
-    );
+    const completedOrders = orders.filter(order => {
+        const status = (order.status || '').toLowerCase();
+        return status === 'delivered';
+    });
+
+    const cancelledOrders = orders.filter(order => {
+        const status = (order.status || '').toLowerCase();
+        return status === 'cancelled';
+    });
+
+    console.log('Active orders:', activeOrders);
+    console.log('Completed orders:', completedOrders);
+    console.log('Cancelled orders:', cancelledOrders);
 
     // Render each tab
     $('#active-orders').html(renderOrdersList(activeOrders, 'active'));
@@ -431,7 +457,18 @@ function renderOrdersList(orders, type) {
  * @returns {string} HTML for the order card
  */
 function renderOrderCard(order, type) {
-    const status = order.status.toLowerCase();
+    // Handle potential missing data with defaults
+    const status = (order.status || '').toLowerCase();
+    const orderId = order.id || 'Unknown';
+    const createdAt = order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Unknown date';
+    const totalAmount = order.total_amount || 0;
+    const itemCount = order.item_count || 0;
+
+    // Ensure items array exists
+    const items = Array.isArray(order.items) ? order.items : [];
+
+    // Default can_cancel to false if not specified
+    const canCancel = order.can_cancel === true;
 
     const statusClass =
         status === 'pending' ? 'status-pending' :
@@ -449,41 +486,53 @@ function renderOrderCard(order, type) {
         status === 'delivered' ? 'Delivered' :
         'Cancelled';
 
+    // Create a safe item list string
+    let itemsText = '';
+    if (items.length > 0) {
+        itemsText = items.map(item => {
+            const quantity = item.quantity || 1;
+            const dishName = item.dish_name || 'Unknown dish';
+            return `${quantity}x ${dishName}`;
+        }).join(', ');
+    } else {
+        itemsText = 'No items available';
+    }
+
     return `
         <div class="card mb-3 order-card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h5 class="card-title">Order #${order.id}</h5>
+                    <h5 class="card-title">Order #${orderId}</h5>
                     <span class="status-badge ${statusClass}">${statusText}</span>
                 </div>
 
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">
-                        <i class="far fa-calendar-alt"></i> ${new Date(order.created_at).toLocaleDateString()}
+                        <i class="far fa-calendar-alt"></i> ${createdAt}
                     </span>
-                    <span class="fw-bold">₹${order.total_amount}</span>
+                    <span class="fw-bold">₹${totalAmount}</span>
                 </div>
 
                 <div class="order-items mb-3">
-                    <p class="mb-1">${order.item_count} items</p>
+                    <p class="mb-1">${itemCount} items</p>
                     <p class="text-muted small mb-0">
-                        ${order.items.map(item => `${item.quantity}x ${item.dish_name}`).join(', ')}
+                        ${itemsText}
                     </p>
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <button class="btn btn-sm btn-outline-primary view-order-btn" data-id="${order.id}">
+                    <button class="btn btn-sm btn-outline-primary view-order-btn" data-id="${orderId}">
                         <i class="fas fa-eye"></i> View Details
                     </button>
 
-                    ${type === 'active' && order.can_cancel ? `
-                        <button class="btn btn-sm btn-outline-danger cancel-order-btn" data-id="${order.id}">
+                    ${type === 'active' && canCancel ? `
+                        <button class="btn btn-sm btn-outline-danger cancel-order-btn" data-id="${orderId}">
                             <i class="fas fa-times"></i> Cancel
                         </button>
                     ` : ''}
 
                     ${type === 'completed' ? `
-                        <button class="btn btn-sm btn-outline-success add-review-btn" data-id="${order.id}">
+                        <button class="btn btn-sm btn-outline-success add-review-btn" data-id="${orderId}">
                             <i class="fas fa-star"></i> Add Review
                         </button>
                     ` : ''}
@@ -540,7 +589,20 @@ function showOrderDetails(orderId) {
  * @returns {string} HTML for the order details modal
  */
 function renderOrderDetailsModal(order) {
-    const status = order.status.toLowerCase();
+    // Handle potential missing data with defaults
+    const status = (order.status || '').toLowerCase();
+    const orderId = order.id || 'Unknown';
+    const createdAt = order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Unknown date';
+    const totalAmount = order.total_amount || 0;
+    const bookingDate = order.booking_date || 'Not specified';
+    const deliverySlot = order.delivery_slot || 'Not specified';
+    const paymentMethod = order.payment_method || 'Not specified';
+
+    // Ensure items array exists
+    const items = Array.isArray(order.items) ? order.items : [];
+
+    // Default can_cancel to false if not specified
+    const canCancel = order.can_cancel === true;
 
     const statusClass =
         status === 'pending' ? 'status-pending' :
@@ -558,59 +620,83 @@ function renderOrderDetailsModal(order) {
         status === 'delivered' ? 'Delivered' :
         'Cancelled';
 
+    // Generate items HTML
+    let itemsHtml = '';
+    if (items.length > 0) {
+        itemsHtml = items.map(item => {
+            const quantity = item.quantity || 1;
+            const dishName = item.dish_name || 'Unknown dish';
+            const price = item.price || 0;
+            return `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <span class="fw-bold">${quantity}x</span> ${dishName}
+                    </div>
+                    <span>₹${(price * quantity).toFixed(2)}</span>
+                </div>
+            `;
+        }).join('');
+    } else {
+        itemsHtml = '<p class="text-muted">No items available</p>';
+    }
+
+    // Format payment method text
+    let paymentMethodText = 'Not specified';
+    if (paymentMethod === 'cash') {
+        paymentMethodText = 'Cash on Delivery';
+    } else if (paymentMethod === 'wallet') {
+        paymentMethodText = 'Wallet';
+    } else if (paymentMethod) {
+        // Capitalize first letter
+        paymentMethodText = paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1);
+    }
+
     return `
         <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="orderDetailsModalLabel">Order #${order.id}</h5>
+                        <h5 class="modal-title" id="orderDetailsModalLabel">Order #${orderId}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted">
-                                <i class="far fa-calendar-alt"></i> ${new Date(order.created_at).toLocaleDateString()}
+                                <i class="far fa-calendar-alt"></i> ${createdAt}
                             </span>
                             <span class="status-badge ${statusClass}">${statusText}</span>
                         </div>
 
                         <h6>Order Items</h6>
                         <div class="order-items-list mb-4">
-                            ${order.items.map(item => `
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <span class="fw-bold">${item.quantity}x</span> ${item.dish_name}
-                                    </div>
-                                    <span>₹${(item.price * item.quantity).toFixed(2)}</span>
-                                </div>
-                            `).join('')}
+                            ${itemsHtml}
 
                             <hr>
 
                             <div class="d-flex justify-content-between align-items-center fw-bold">
                                 <span>Total</span>
-                                <span>₹${order.total_amount}</span>
+                                <span>₹${totalAmount}</span>
                             </div>
                         </div>
 
                         <h6>Delivery Information</h6>
                         <div class="delivery-info mb-4">
-                            <p class="mb-1"><strong>Date:</strong> ${order.booking_date}</p>
-                            <p class="mb-1"><strong>Time Slot:</strong> ${order.delivery_slot}</p>
-                            <p class="mb-0"><strong>Payment Method:</strong> ${order.payment_method === 'cash' ? 'Cash on Delivery' : 'Wallet'}</p>
+                            <p class="mb-1"><strong>Date:</strong> ${bookingDate}</p>
+                            <p class="mb-1"><strong>Time Slot:</strong> ${deliverySlot}</p>
+                            <p class="mb-0"><strong>Payment Method:</strong> ${paymentMethodText}</p>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
-                        ${order.can_cancel ? `
-                            <button type="button" class="btn btn-danger cancel-order-modal-btn" data-id="${order.id}">
+                        ${canCancel ? `
+                            <button type="button" class="btn btn-danger cancel-order-modal-btn" data-id="${orderId}">
                                 <i class="fas fa-times"></i> Cancel Order
                             </button>
                         ` : ''}
 
-                        ${order.status === 'delivered' ? `
-                            <button type="button" class="btn btn-success add-review-modal-btn" data-id="${order.id}">
+                        ${status === 'delivered' ? `
+                            <button type="button" class="btn btn-success add-review-modal-btn" data-id="${orderId}">
                                 <i class="fas fa-star"></i> Add Review
                             </button>
                         ` : ''}

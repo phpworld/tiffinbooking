@@ -9,6 +9,7 @@ use App\Models\DishModel;
 use App\Models\BookingModel;
 use App\Models\BookingItemModel;
 use App\Models\DeliverySlotModel;
+use App\Models\BannerModel;
 
 class Admin extends BaseController
 {
@@ -18,6 +19,7 @@ class Admin extends BaseController
     protected $bookingModel;
     protected $bookingItemModel;
     protected $deliverySlotModel;
+    protected $bannerModel;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class Admin extends BaseController
         $this->bookingModel = new BookingModel();
         $this->bookingItemModel = new BookingItemModel();
         $this->deliverySlotModel = new DeliverySlotModel();
+        $this->bannerModel = new BannerModel();
     }
 
     public function index()
@@ -134,7 +137,7 @@ class Admin extends BaseController
                 $img = $this->request->getFile('image');
                 if ($img->isValid() && !$img->hasMoved()) {
                     $newName = $img->getRandomName();
-                    $img->move(ROOTPATH . 'public/uploads/dishes', $newName);
+                    $img->move(ROOTPATH . 'uploads/dishes', $newName);
                     $data['image'] = $newName;
                 }
 
@@ -187,11 +190,11 @@ class Admin extends BaseController
                 if ($this->request->getFile('image')->isValid()) {
                     $img = $this->request->getFile('image');
                     $newName = $img->getRandomName();
-                    $img->move(ROOTPATH . 'public/uploads/dishes', $newName);
+                    $img->move(ROOTPATH . 'uploads/dishes', $newName);
 
                     // Delete old image
-                    if ($dish['image'] && file_exists(ROOTPATH . 'public/uploads/dishes/' . $dish['image'])) {
-                        unlink(ROOTPATH . 'public/uploads/dishes/' . $dish['image']);
+                    if ($dish['image'] && file_exists(ROOTPATH . 'uploads/dishes/' . $dish['image'])) {
+                        unlink(ROOTPATH . 'uploads/dishes/' . $dish['image']);
                     }
 
                     $updateData['image'] = $newName;
@@ -221,8 +224,8 @@ class Admin extends BaseController
         }
 
         // Delete image
-        if ($dish['image'] && file_exists(ROOTPATH . 'public/uploads/dishes/' . $dish['image'])) {
-            unlink(ROOTPATH . 'public/uploads/dishes/' . $dish['image']);
+        if ($dish['image'] && file_exists(ROOTPATH . 'uploads/dishes/' . $dish['image'])) {
+            unlink(ROOTPATH . 'uploads/dishes/' . $dish['image']);
         }
 
         $this->dishModel->delete($id);
@@ -465,5 +468,139 @@ class Admin extends BaseController
         }
 
         return view('admin/reports', $data);
+    }
+
+    // Banner Management
+    public function banners()
+    {
+        if (!session()->get('is_admin')) {
+            return redirect()->to('/admin/login');
+        }
+
+        $data['banners'] = $this->bannerModel->orderBy('order', 'ASC')->findAll();
+
+        return view('admin/banners/index', $data);
+    }
+
+    public function createBanner()
+    {
+        if (!session()->get('is_admin')) {
+            return redirect()->to('/admin/login');
+        }
+
+        if ($this->request->getMethod() === 'POST') {
+            $rules = [
+                'title' => 'required|min_length[3]|max_length[100]',
+                'image' => 'uploaded[image]|max_size[image,2048]|is_image[image]',
+            ];
+
+            if ($this->validate($rules)) {
+                $data = [
+                    'title' => $this->request->getPost('title'),
+                    'subtitle' => $this->request->getPost('subtitle'),
+                    'button_text' => $this->request->getPost('button_text'),
+                    'button_link' => $this->request->getPost('button_link'),
+                    'order' => $this->request->getPost('order') ?? 0,
+                    'is_active' => $this->request->getPost('is_active') ? 1 : 0,
+                ];
+
+                // Handle image upload
+                $img = $this->request->getFile('image');
+                if ($img->isValid() && !$img->hasMoved()) {
+                    $newName = $img->getRandomName();
+                    $img->move(ROOTPATH . 'public/uploads/banners', $newName);
+                    $data['image'] = $newName;
+                }
+
+                $this->bannerModel->insert($data);
+
+                return redirect()->to('/admin/banners')->with('success', 'Banner created successfully');
+            } else {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
+        }
+
+        return view('admin/banners/create');
+    }
+
+    public function editBanner($id)
+    {
+        if (!session()->get('is_admin')) {
+            return redirect()->to('/admin/login');
+        }
+
+        $banner = $this->bannerModel->find($id);
+
+        if (!$banner) {
+            return redirect()->to('/admin/banners')->with('error', 'Banner not found');
+        }
+
+        $data['banner'] = $banner;
+
+        if ($this->request->getMethod() === 'POST') {
+            $rules = [
+                'title' => 'required|min_length[3]|max_length[100]',
+            ];
+
+            // Only validate image if a new one is uploaded
+            if ($this->request->getFile('image')->isValid()) {
+                $rules['image'] = 'max_size[image,2048]|is_image[image]';
+            }
+
+            if ($this->validate($rules)) {
+                $updateData = [
+                    'title' => $this->request->getPost('title'),
+                    'subtitle' => $this->request->getPost('subtitle'),
+                    'button_text' => $this->request->getPost('button_text'),
+                    'button_link' => $this->request->getPost('button_link'),
+                    'order' => $this->request->getPost('order') ?? 0,
+                    'is_active' => $this->request->getPost('is_active') ? 1 : 0,
+                ];
+
+                // Handle image upload if a new one is provided
+                $img = $this->request->getFile('image');
+                if ($img->isValid() && !$img->hasMoved()) {
+                    $newName = $img->getRandomName();
+                    $img->move(ROOTPATH . 'public/uploads/banners', $newName);
+
+                    // Delete old image
+                    if ($banner['image'] && file_exists(ROOTPATH . 'public/uploads/banners/' . $banner['image'])) {
+                        unlink(ROOTPATH . 'public/uploads/banners/' . $banner['image']);
+                    }
+
+                    $updateData['image'] = $newName;
+                }
+
+                $this->bannerModel->update($id, $updateData);
+
+                return redirect()->to('/admin/banners')->with('success', 'Banner updated successfully');
+            } else {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
+        }
+
+        return view('admin/banners/edit', $data);
+    }
+
+    public function deleteBanner($id)
+    {
+        if (!session()->get('is_admin')) {
+            return redirect()->to('/admin/login');
+        }
+
+        $banner = $this->bannerModel->find($id);
+
+        if (!$banner) {
+            return redirect()->to('/admin/banners')->with('error', 'Banner not found');
+        }
+
+        // Delete image
+        if ($banner['image'] && file_exists(ROOTPATH . 'public/uploads/banners/' . $banner['image'])) {
+            unlink(ROOTPATH . 'public/uploads/banners/' . $banner['image']);
+        }
+
+        $this->bannerModel->delete($id);
+
+        return redirect()->to('/admin/banners')->with('success', 'Banner deleted successfully');
     }
 }

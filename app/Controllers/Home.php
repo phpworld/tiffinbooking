@@ -3,12 +3,17 @@
 namespace App\Controllers;
 
 use App\Models\DishModel;
+use App\Models\BannerModel;
 
 class Home extends BaseController
 {
     public function index()
     {
         $dishModel = new DishModel();
+        $bannerModel = new BannerModel();
+
+        // Get active banners
+        $data['banners'] = $bannerModel->getActiveBanners();
 
         // Get featured dishes
         $data['featured_dishes'] = $dishModel->where('available', 1)->orderBy('id', 'DESC')->findAll(6);

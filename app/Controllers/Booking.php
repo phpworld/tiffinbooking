@@ -9,6 +9,7 @@ use App\Models\DishModel;
 use App\Models\DeliverySlotModel;
 use App\Models\WalletModel;
 use App\Models\WalletTransactionModel;
+use Razorpay\Api\Api as RazorpayApi;
 
 class Booking extends BaseController
 {
@@ -175,6 +176,50 @@ class Booking extends BaseController
         return view('booking/checkout', $data);
     }
 
+    public function createOrder()
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['error' => 'User not logged in']);
+        }
+
+        $cart = session()->get('cart');
+
+        if (empty($cart)) {
+            return $this->response->setJSON(['error' => 'Your cart is empty']);
+        }
+
+        $totalAmount = $this->calculateTotal($cart);
+
+        try {
+            // Initialize Razorpay API
+            $keyId = getenv('razorpay.key_id') ?: 'rzp_test_XaZ89XsD6ejHqt';
+            $keySecret = getenv('razorpay.key_secret') ?: 'SoUETaL5nEG2tPNJe35Bz0fE';
+            $api = new RazorpayApi($keyId, $keySecret);
+
+            // Create order
+            $orderData = [
+                'receipt' => 'order_' . time(),
+                'amount' => $totalAmount * 100, // Convert to paise
+                'currency' => 'INR',
+                'notes' => [
+                    'user_id' => session()->get('user_id'),
+                    'purpose' => 'order_payment'
+                ]
+            ];
+
+            $order = $api->order->create($orderData);
+
+            return $this->response->setJSON([
+                'order_id' => $order->id,
+                'amount' => $order->amount,
+                'currency' => $order->currency
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Razorpay order creation failed: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => 'Failed to create payment order: ' . $e->getMessage()]);
+        }
+    }
+
     public function placeOrder()
     {
         if (!session()->get('logged_in')) {
@@ -198,8 +243,9 @@ class Booking extends BaseController
         $defaultSlot = $this->deliverySlotModel->where('is_active', 1)->first();
         $deliverySlotId = $defaultSlot ? $defaultSlot['id'] : null;
 
-        // Check wallet balance if payment method is wallet
+        // Handle payment based on method
         if ($paymentMethod == 'wallet') {
+            // Check wallet balance
             $wallet = $this->walletModel->where('user_id', $userId)->first();
 
             if (!$wallet || $wallet['balance'] < $totalAmount) {
@@ -212,11 +258,40 @@ class Booking extends BaseController
 
             // Record transaction
             $this->walletTransactionModel->insert([
+                'wallet_id' => $wallet['id'],
                 'user_id' => $userId,
                 'type' => 'debit',
                 'amount' => $totalAmount,
                 'description' => 'Payment for tiffin booking'
             ]);
+        } elseif ($paymentMethod == 'razorpay') {
+            // Verify Razorpay payment
+            $razorpayPaymentId = $this->request->getPost('razorpay_payment_id');
+            $razorpayOrderId = $this->request->getPost('razorpay_order_id');
+            $razorpaySignature = $this->request->getPost('razorpay_signature');
+
+            if (!$razorpayPaymentId || !$razorpayOrderId || !$razorpaySignature) {
+                return redirect()->back()->with('error', 'Invalid payment data');
+            }
+
+            try {
+                // Initialize Razorpay API
+                $keyId = getenv('razorpay.key_id') ?: 'rzp_test_XaZ89XsD6ejHqt';
+                $keySecret = getenv('razorpay.key_secret') ?: 'SoUETaL5nEG2tPNJe35Bz0fE';
+                $api = new RazorpayApi($keyId, $keySecret);
+
+                // Verify signature
+                $attributes = [
+                    'razorpay_payment_id' => $razorpayPaymentId,
+                    'razorpay_order_id' => $razorpayOrderId,
+                    'razorpay_signature' => $razorpaySignature
+                ];
+
+                $api->utility->verifyPaymentSignature($attributes);
+            } catch (\Exception $e) {
+                log_message('error', 'Razorpay payment verification failed: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Payment verification failed: ' . $e->getMessage());
+            }
         }
 
         // Create booking
@@ -226,7 +301,8 @@ class Booking extends BaseController
             'delivery_slot_id' => $deliverySlotId ?? null,
             'total_amount' => $totalAmount,
             'status' => 'pending',
-            'payment_method' => $paymentMethod
+            'payment_method' => $paymentMethod,
+            'payment_id' => $paymentMethod == 'razorpay' ? $this->request->getPost('razorpay_payment_id') : null
         ];
 
         $this->bookingModel->insert($bookingData);

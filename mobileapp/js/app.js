@@ -346,24 +346,8 @@ function loadHomeScreen() {
             // Render recommended dishes
             renderRecommendedDishes(dishes);
 
-            // Try to get orders, but don't fail if this part fails
-            getOrders()
-                .then(orders => {
-                    // Render recent orders
-                    renderRecentOrders(orders);
-                })
-                .catch(error => {
-                    console.error('Error loading orders:', error);
-                    // Just show empty state for orders
-                    $('#recent-orders').html(`
-                        <div class="text-center w-100 py-3">
-                            <p class="text-muted mb-0">No recent orders. Place an order to see it here!</p>
-                        </div>
-                    `);
-                })
-                .finally(() => {
-                    toggleLoading(false);
-                });
+            // No longer loading orders on home screen
+            toggleLoading(false);
         })
         .catch(error => {
             console.error('Error loading dishes:', error);
@@ -372,13 +356,6 @@ function loadHomeScreen() {
             $('#popular-dishes, #recommended-dishes').html(`
                 <div class="text-center w-100 py-3">
                     <p class="text-muted mb-0">Failed to load dishes. Please try again later.</p>
-                </div>
-            `);
-
-            // Show empty state for orders
-            $('#recent-orders').html(`
-                <div class="text-center w-100 py-3">
-                    <p class="text-muted mb-0">No recent orders. Place an order to see it here!</p>
                 </div>
             `);
 
@@ -391,18 +368,72 @@ function loadHomeScreen() {
  * Initialize banner slider
  */
 function initBannerSlider() {
-    // Initialize Swiper
-    new Swiper('.banner-slider', {
-        loop: true,
-        autoplay: {
-            delay: 3000,
-            disableOnInteraction: false,
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-    });
+    // Fetch banners from API
+    fetch(CONFIG.API_BASE_URL + '/banners')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' && data.data.length > 0) {
+                // Render banners
+                const bannerSlider = document.querySelector('.banner-slider .swiper-wrapper');
+                bannerSlider.innerHTML = '';
+
+                data.data.forEach(banner => {
+                    const slide = document.createElement('div');
+                    slide.className = 'swiper-slide';
+
+                    let buttonHtml = '';
+                    if (banner.button_text && banner.button_link) {
+                        buttonHtml = `
+                            <div class="banner-button">
+                                <a href="${banner.button_link}" class="btn btn-primary">${banner.button_text}</a>
+                            </div>
+                        `;
+                    }
+
+                    slide.innerHTML = `
+                        <div class="banner-slide">
+                            <img src="${banner.image}" alt="${banner.title}">
+                            <div class="banner-content">
+                                <h3>${banner.title}</h3>
+                                ${banner.subtitle ? `<p>${banner.subtitle}</p>` : ''}
+                                ${buttonHtml}
+                            </div>
+                        </div>
+                    `;
+
+                    bannerSlider.appendChild(slide);
+                });
+            }
+
+            // Initialize Swiper
+            new Swiper('.banner-slider', {
+                loop: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+            });
+        })
+        .catch(error => {
+            console.error('Error loading banners:', error);
+
+            // Initialize Swiper with default banners
+            new Swiper('.banner-slider', {
+                loop: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+            });
+        });
 }
 
 /**
@@ -468,51 +499,7 @@ function renderRecommendedDishes(dishes) {
     });
 }
 
-/**
- * Render recent orders section
- * @param {Array} orders - All orders
- */
-function renderRecentOrders(orders) {
-    // Sort orders by date (descending) and take the first 3
-    const recentOrders = [...orders].sort((a, b) =>
-        new Date(b.created_at) - new Date(a.created_at)
-    ).slice(0, 3);
 
-    if (recentOrders.length === 0) {
-        $('#recent-orders').html(`
-            <div class="text-center w-100 py-3">
-                <p class="text-muted mb-0">No recent orders. Place an order to see it here!</p>
-            </div>
-        `);
-        return;
-    }
-
-    let html = '';
-    recentOrders.forEach(order => {
-        html += `
-            <div class="card order-card-horizontal" style="min-width: 250px; margin-right: 15px;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="card-title mb-0">Order #${order.id}</h6>
-                        <span class="badge ${getStatusBadgeClass(order.status)}">${getStatusText(order.status)}</span>
-                    </div>
-
-                    <p class="text-muted small mb-2">
-                        <i class="far fa-calendar-alt"></i> ${new Date(order.created_at).toLocaleDateString()}
-                    </p>
-
-                    <p class="mb-2 small">${order.item_count} items · ₹${order.total_amount}</p>
-
-                    <button class="btn btn-sm btn-outline-primary view-order-btn" data-id="${order.id}">
-                        View Details
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-
-    $('#recent-orders').html(html);
-}
 
 /**
  * Load dishes for menu screen

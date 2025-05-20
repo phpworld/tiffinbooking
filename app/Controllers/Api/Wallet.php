@@ -10,17 +10,17 @@ use CodeIgniter\API\ResponseTrait;
 class Wallet extends BaseController
 {
     use ResponseTrait;
-    
+
     protected $walletModel;
     protected $walletTransactionModel;
-    
+
     public function __construct()
     {
         helper('jwt');
         $this->walletModel = new WalletModel();
         $this->walletTransactionModel = new WalletTransactionModel();
     }
-    
+
     /**
      * Get wallet details
      *
@@ -29,39 +29,39 @@ class Wallet extends BaseController
     public function index()
     {
         $userData = getUserFromToken();
-        
+
         if (!$userData) {
             return $this->failUnauthorized('Invalid or expired token');
         }
-        
+
         $userId = $userData['id'];
-        
+
         // Get wallet
         $wallet = $this->walletModel->where('user_id', $userId)->first();
-        
+
         if (!$wallet) {
             // Create wallet if it doesn't exist
             $walletData = [
                 'user_id' => $userId,
                 'balance' => 0
             ];
-            
+
             $this->walletModel->insert($walletData);
             $walletId = $this->walletModel->getInsertID();
-            
+
             $wallet = [
                 'id' => $walletId,
                 'user_id' => $userId,
                 'balance' => 0
             ];
         }
-        
+
         // Get recent transactions
         $transactions = $this->walletTransactionModel->where('wallet_id', $wallet['id'])
                                                     ->orderBy('created_at', 'DESC')
                                                     ->limit(10)
                                                     ->findAll();
-        
+
         $processedTransactions = [];
         foreach ($transactions as $transaction) {
             $processedTransactions[] = [
@@ -72,7 +72,7 @@ class Wallet extends BaseController
                 'date' => date('Y-m-d H:i:s', strtotime($transaction['created_at']))
             ];
         }
-        
+
         $response = [
             'status' => true,
             'data' => [
@@ -80,10 +80,10 @@ class Wallet extends BaseController
                 'transactions' => $processedTransactions
             ]
         ];
-        
+
         return $this->respond($response);
     }
-    
+
     /**
      * Recharge wallet
      *
@@ -92,33 +92,33 @@ class Wallet extends BaseController
     public function recharge()
     {
         $userData = getUserFromToken();
-        
+
         if (!$userData) {
             return $this->failUnauthorized('Invalid or expired token');
         }
-        
+
         $userId = $userData['id'];
-        
+
         $rules = [
             'amount' => 'required|numeric|greater_than[0]'
         ];
-        
+
         if (!$this->validate($rules)) {
             return $this->failValidationErrors($this->validator->getErrors());
         }
-        
+
         $amount = $this->request->getPost('amount');
-        
+
         // Get wallet
         $wallet = $this->walletModel->where('user_id', $userId)->first();
-        
+
         if (!$wallet) {
             // Create wallet if it doesn't exist
             $walletData = [
                 'user_id' => $userId,
                 'balance' => $amount
             ];
-            
+
             $this->walletModel->insert($walletData);
             $walletId = $this->walletModel->getInsertID();
         } else {
@@ -127,20 +127,21 @@ class Wallet extends BaseController
             $this->walletModel->update($wallet['id'], ['balance' => $newBalance]);
             $walletId = $wallet['id'];
         }
-        
+
         // Add transaction record
         $transactionData = [
             'wallet_id' => $walletId,
+            'user_id' => $userId,
             'amount' => $amount,
             'type' => 'credit',
             'description' => 'Wallet recharge'
         ];
-        
+
         $this->walletTransactionModel->insert($transactionData);
-        
+
         // Get updated wallet
         $updatedWallet = $this->walletModel->find($walletId);
-        
+
         $response = [
             'status' => true,
             'message' => 'Wallet recharged successfully',
@@ -149,7 +150,7 @@ class Wallet extends BaseController
                 'amount_added' => $amount
             ]
         ];
-        
+
         return $this->respond($response);
     }
 }

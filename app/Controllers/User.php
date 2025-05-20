@@ -8,6 +8,7 @@ use App\Models\WalletModel;
 use App\Models\WalletTransactionModel;
 use App\Models\BookingModel;
 use App\Models\BookingItemModel;
+use Razorpay\Api\Api as RazorpayApi;
 
 class User extends BaseController
 {
@@ -66,40 +67,122 @@ class User extends BaseController
             return redirect()->to('/auth/login');
         }
 
-        if ($this->request->getMethod() === 'POST') {
-            $amount = (float) $this->request->getPost('amount');
-            $userId = session()->get('user_id');
+        // Display the recharge form
+        return view('user/recharge');
+    }
 
-            if ($amount <= 0) {
-                return redirect()->back()->with('error', 'Amount must be greater than zero');
-            }
+    public function createOrder()
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['error' => 'User not logged in']);
+        }
 
+        $amount = (float) $this->request->getPost('amount');
+
+        if ($amount <= 0) {
+            return $this->response->setJSON(['error' => 'Amount must be greater than zero']);
+        }
+
+        try {
+            // Initialize Razorpay API
+            $keyId = getenv('razorpay.key_id') ?: 'rzp_test_XaZ89XsD6ejHqt';
+            $keySecret = getenv('razorpay.key_secret') ?: 'SoUETaL5nEG2tPNJe35Bz0fE';
+            $api = new RazorpayApi($keyId, $keySecret);
+
+            // Create order
+            $orderData = [
+                'receipt' => 'wallet_recharge_' . time(),
+                'amount' => $amount * 100, // Convert to paise
+                'currency' => 'INR',
+                'notes' => [
+                    'user_id' => session()->get('user_id'),
+                    'purpose' => 'wallet_recharge'
+                ]
+            ];
+
+            $order = $api->order->create($orderData);
+
+            return $this->response->setJSON([
+                'order_id' => $order->id,
+                'amount' => $order->amount,
+                'currency' => $order->currency
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Razorpay order creation failed: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => 'Failed to create payment order: ' . $e->getMessage()]);
+        }
+    }
+
+    public function verifyPayment()
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['error' => 'User not logged in']);
+        }
+
+        $razorpayPaymentId = $this->request->getPost('razorpay_payment_id');
+        $razorpayOrderId = $this->request->getPost('razorpay_order_id');
+        $razorpaySignature = $this->request->getPost('razorpay_signature');
+        $amount = (float) $this->request->getPost('amount');
+        $userId = session()->get('user_id');
+
+        if (!$razorpayPaymentId || !$razorpayOrderId || !$razorpaySignature) {
+            return $this->response->setJSON(['error' => 'Invalid payment data']);
+        }
+
+        try {
+            // Initialize Razorpay API
+            $keyId = getenv('razorpay.key_id') ?: 'rzp_test_XaZ89XsD6ejHqt';
+            $keySecret = getenv('razorpay.key_secret') ?: 'SoUETaL5nEG2tPNJe35Bz0fE';
+            $api = new RazorpayApi($keyId, $keySecret);
+
+            // Verify signature
+            $attributes = [
+                'razorpay_payment_id' => $razorpayPaymentId,
+                'razorpay_order_id' => $razorpayOrderId,
+                'razorpay_signature' => $razorpaySignature
+            ];
+
+            $api->utility->verifyPaymentSignature($attributes);
+
+            // Payment is verified, update wallet balance
             $wallet = $this->walletModel->where('user_id', $userId)->first();
 
             if (!$wallet) {
                 // Create wallet if it doesn't exist
-                $this->walletModel->insert([
+                $walletId = $this->walletModel->insert([
                     'user_id' => $userId,
                     'balance' => $amount
                 ]);
+
+                $wallet = [
+                    'id' => $walletId,
+                    'balance' => $amount
+                ];
             } else {
                 // Update existing wallet
                 $newBalance = $wallet['balance'] + $amount;
                 $this->walletModel->update($wallet['id'], ['balance' => $newBalance]);
+                $wallet['balance'] = $newBalance;
             }
 
             // Record transaction
             $this->walletTransactionModel->insert([
+                'wallet_id' => $wallet['id'],
                 'user_id' => $userId,
                 'type' => 'credit',
                 'amount' => $amount,
-                'description' => 'Wallet Recharge'
+                'description' => 'Wallet Recharge via Razorpay (Payment ID: ' . $razorpayPaymentId . ')'
             ]);
 
-            return redirect()->to('/user/wallet')->with('success', 'Wallet recharged successfully');
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Payment verified and wallet updated successfully',
+                'new_balance' => $wallet['balance']
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Razorpay payment verification failed: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => 'Payment verification failed: ' . $e->getMessage()]);
         }
-
-        return view('user/recharge');
     }
 
     public function profile()
@@ -202,6 +285,7 @@ class User extends BaseController
 
             // Record refund transaction
             $this->walletTransactionModel->insert([
+                'wallet_id' => $wallet['id'],
                 'user_id' => $userId,
                 'type' => 'credit',
                 'amount' => $booking['total_amount'],

@@ -4,7 +4,7 @@
 
 const CONFIG = {
     // API Base URL - Change this to your server URL
-    API_BASE_URL: 'http://localhost/tiffine/public/index.php/api',
+    API_BASE_URL: 'http://localhost/tiffine/api',
 
     // Local Storage Keys
     STORAGE_TOKEN_KEY: 'tiffin_auth_token',

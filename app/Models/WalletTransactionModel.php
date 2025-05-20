@@ -12,7 +12,7 @@ class WalletTransactionModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['wallet_id', 'type', 'amount', 'description'];
+    protected $allowedFields    = ['wallet_id', 'user_id', 'type', 'amount', 'description'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

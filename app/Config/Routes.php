@@ -21,7 +21,8 @@ $routes->get('/user/profile', 'User::profile');
 $routes->post('/user/profile', 'User::profile');
 $routes->get('/user/wallet', 'User::wallet');
 $routes->get('/user/wallet/recharge', 'User::rechargeWallet');
-$routes->post('/user/wallet/recharge', 'User::rechargeWallet');
+$routes->post('/user/wallet/create-order', 'User::createOrder');
+$routes->post('/user/wallet/verify-payment', 'User::verifyPayment');
 $routes->get('/user/bookings', 'User::bookings');
 $routes->get('/user/bookings/view/(:num)', 'User::viewBooking/$1');
 $routes->get('/user/bookings/cancel/(:num)', 'User::cancelBooking/$1');
@@ -37,6 +38,7 @@ $routes->get('/booking/add-to-cart/(:num)', 'Booking::addToCart/$1');
 $routes->get('/booking/remove-from-cart/(:num)', 'Booking::removeFromCart/$1');
 $routes->get('/booking/clear-cart', 'Booking::clearCart');
 $routes->get('/booking/checkout', 'Booking::checkout');
+$routes->post('/booking/create-order', 'Booking::createOrder');
 $routes->post('/booking/place-order', 'Booking::placeOrder');
 $routes->get('/booking/update-quantity/(:num)/(:num)', 'Booking::updateQuantity/$1/$2');
 
@@ -85,6 +87,14 @@ $routes->get('/admin/delivery-slots/delete/(:num)', 'Admin::deleteSlot/$1');
 // Admin Reports
 $routes->get('/admin/reports', 'Admin::reports');
 
+// Admin Banner Management
+$routes->get('/admin/banners', 'Admin::banners');
+$routes->get('/admin/banners/create', 'Admin::createBanner');
+$routes->post('/admin/banners/create', 'Admin::createBanner');
+$routes->get('/admin/banners/edit/(:num)', 'Admin::editBanner/$1');
+$routes->post('/admin/banners/edit/(:num)', 'Admin::editBanner/$1');
+$routes->get('/admin/banners/delete/(:num)', 'Admin::deleteBanner/$1');
+
 // API Routes
 $routes->group('api', function($routes) {
     // Test API Route
@@ -102,6 +112,7 @@ $routes->group('api', function($routes) {
     $routes->get('dishes', 'Api\Dishes::index');
     $routes->get('dishes/(:num)', 'Api\Dishes::view/$1');
     $routes->get('reviews/dish/(:num)', 'Api\Review::getDishReviews/$1');
+    $routes->get('banners', 'Api\Banners::index');
 
     // Protected API Routes
     $routes->group('', ['filter' => 'jwt'], function($routes) {

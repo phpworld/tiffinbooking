@@ -289,6 +289,11 @@
                         <i class="fas fa-star"></i> Customer Reviews
                     </a>
                 </li>
+                <li class="<?= strpos(current_url(), '/admin/banners') !== false ? 'active' : '' ?>">
+                    <a href="<?= base_url('/admin/banners') ?>">
+                        <i class="fas fa-images"></i> Banner Sliders
+                    </a>
+                </li>
                 <li class="<?= strpos(current_url(), '/admin/reports') !== false ? 'active' : '' ?>">
                     <a href="<?= base_url('/admin/reports') ?>">
                         <i class="fas fa-chart-bar"></i> Reports
