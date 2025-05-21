@@ -559,51 +559,118 @@ function loadOrders(showLoadingIndicator = true) {
     // Add these styles dynamically
     const style = document.createElement('style');
     style.innerHTML = `
-        .order-card {
+        /* Order Tabs */
+        #order-tabs {
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            padding: 6px;
+            margin: 0 16px 16px;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        #order-tabs .nav-link {
+            border: none;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: #6c757d;
+            font-weight: 500;
+            padding: 10px 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+        #order-tabs .nav-link.active {
+            background-color: #4361ee;
+            color: white;
+            box-shadow: 0 3px 8px rgba(67, 97, 238, 0.3);
+        }
+        #order-tabs .nav-link .badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.65rem;
+            padding: 0.25rem 0.4rem;
+            border-radius: 10px;
+            background-color: #e63946;
+            color: white;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #orders-tab-content {
+            padding: 0 16px;
+        }
+        /* Order Cards */
+        .order-card {
+            border-radius: 16px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
             transition: transform 0.2s, box-shadow 0.2s;
             overflow: hidden;
             border: none;
+            margin-bottom: 18px;
+            background-color: #ffffff;
+        }
+        .order-card .card-body {
+            padding: 16px;
         }
         .order-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
         }
+
+        /* Order Items */
         .order-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 8px 0;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
+            margin: 10px 0;
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.07);
         }
         .order-item:last-child {
             border-bottom: none;
+            margin-bottom: 0;
         }
         .item-price {
-            color: #666;
-            font-weight: 500;
+            color: #444;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
-        .order-payment-method {
-            margin-top: 10px;
-            color: #4CAF50;
-            font-weight: 500;
-        }
+
+        /* Images */
         .order-dish-image {
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            width: 60px !important;
+            height: 60px !important;
+            object-fit: cover;
+            margin-right: 14px;
         }
         .order-item-image {
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            width: 40px !important;
+            height: 40px !important;
+            object-fit: cover;
+            margin-right: 12px;
         }
+        .placeholder-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #f5f5f5, #eeeeee);
+            color: #aaa;
+        }
+
+        /* Status Badges */
         .status-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: capitalize;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .status-pending {
             background-color: #FFF3CD;
@@ -629,25 +696,125 @@ function loadOrders(showLoadingIndicator = true) {
             background-color: #F8D7DA;
             color: #721C24;
         }
+
+        /* Order Details Section */
         .order-details {
             background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
+
+        /* Order Footer */
         .order-footer {
-            border-top: 1px solid #eee;
-            padding-top: 12px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            padding-top: 14px;
+            margin-top: 14px;
         }
+
+        /* Buttons */
+        .order-card .btn {
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .order-card .btn-primary {
+            background-color: #4361ee;
+            border-color: #4361ee;
+        }
+        .order-card .btn-primary:hover {
+            background-color: #3a56d4;
+            border-color: #3a56d4;
+        }
+        .order-card .btn-outline-danger {
+            color: #e63946;
+            border-color: #e63946;
+        }
+        .order-card .btn-outline-danger:hover {
+            background-color: #e63946;
+            color: white;
+        }
+        .order-card .btn-outline-success {
+            color: #2a9d8f;
+            border-color: #2a9d8f;
+        }
+        .order-card .btn-outline-success:hover {
+            background-color: #2a9d8f;
+            color: white;
+        }
+
+        /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             color: #6c757d;
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            margin: 20px 0;
         }
         .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
             opacity: 0.5;
+            color: #adb5bd;
+        }
+        .empty-state p {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Order Details Modal */
+        #orderDetailsModal .modal-content {
+            border-radius: 16px;
+            border: none;
+        }
+        #orderDetailsModal .modal-header {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 16px 20px;
+        }
+        #orderDetailsModal .modal-body {
+            padding: 20px;
+        }
+        #orderDetailsModal .modal-footer {
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 16px 20px;
+        }
+        #orderDetailsModal h6 {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        #orderDetailsModal .delivery-info p {
+            margin-bottom: 10px;
+            padding-left: 8px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 576px) {
+            .order-card .card-body {
+                padding: 14px;
+            }
+            .order-dish-image {
+                width: 50px !important;
+                height: 50px !important;
+                margin-right: 10px;
+            }
+            .order-item-image {
+                width: 32px !important;
+                height: 32px !important;
+                margin-right: 8px;
+            }
+            .order-details {
+                padding: 12px;
+                margin: 10px 0;
+            }
+            .status-badge {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+            }
         }
     `;
     document.head.appendChild(style);
@@ -874,6 +1041,11 @@ function renderOrders(orders) {
     // Update tab badges with counts
     updateOrderTabBadges(activeOrders.length, completedOrders.length, cancelledOrders.length);
 
+    // Update tab text with counts
+    $('#active-tab').html(`Active <span class="badge">${activeOrders.length}</span>`);
+    $('#completed-tab').html(`Completed <span class="badge">${completedOrders.length}</span>`);
+    $('#cancelled-tab').html(`Cancelled <span class="badge">${cancelledOrders.length}</span>`);
+
     // Add event listeners
     $('.view-order-btn').on('click', function() {
         const orderId = $(this).data('id');
@@ -991,66 +1163,82 @@ function renderOrdersList(orders, type) {
         const orderDate = formatDate(order.created_at);
 
         return `
-        <div class="order-card mb-3">
+        <div class="order-card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <!-- Order Header -->
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="d-flex align-items-center">
                         ${order.items[0].image ?
-                            `<img src="${order.items[0].image}" alt="${order.items[0].dish_name}"
-                                  class="order-dish-image me-2" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">` :
-                            `<div class="placeholder-image me-2" style="width:50px;height:50px;background:#eee;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-utensils text-muted"></i>
+                            `<img src="${order.items[0].image}" alt="${order.items[0].dish_name}" class="order-dish-image">` :
+                            `<div class="placeholder-image order-dish-image">
+                                <i class="fas fa-utensils"></i>
                              </div>`}
                         <div>
-                            <h6 class="mb-0">${order.items[0].dish_name}</h6>
-                            <small class="text-muted">Order #${order.id}</small>
+                            <h6 class="mb-1 fw-bold">${order.items[0].dish_name}</h6>
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted me-2">Order #${order.id}</span>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
                         </div>
                     </div>
-                    <span class="badge ${statusClass}">${statusText}</span>
+                    <div class="text-end">
+                        <div class="fw-bold mb-1">₹${parseFloat(order.total_amount).toFixed(2)}</div>
+                        <small class="text-muted">${orderDate}</small>
+                    </div>
                 </div>
 
+                <!-- Order Items -->
                 <div class="order-details">
                     ${order.items.map(item => `
                         <div class="order-item">
                             <div class="d-flex align-items-center">
                                 ${item.image ?
-                                    `<img src="${item.image}" alt="${item.dish_name}"
-                                          class="order-item-image me-2" style="width: 30px; height: 30px; object-fit: cover; border-radius: 4px;">` :
-                                    ''}
-                                <span>${item.quantity}x ${item.dish_name}</span>
+                                    `<img src="${item.image}" alt="${item.dish_name}" class="order-item-image">` :
+                                    `<div class="placeholder-image order-item-image">
+                                        <i class="fas fa-utensils"></i>
+                                     </div>`}
+                                <div>
+                                    <div class="fw-medium">${item.dish_name}</div>
+                                    <small class="text-muted">Qty: ${item.quantity} × ₹${parseFloat(item.price).toFixed(2)}</small>
+                                </div>
                             </div>
                             <span class="item-price">₹${(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                     `).join('')}
                 </div>
 
-                <div class="order-footer mt-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted">${orderDate}</small>
-                            ${order.payment_method === 'wallet' ?
-                                '<i class="fas fa-wallet text-success ms-2"></i>' :
-                                '<i class="fas fa-money-bill-wave text-primary ms-2"></i>'}
-                            <small class="ms-1">${order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}</small>
-                        </div>
-                        <div class="text-end">
-                            <strong>Total: ₹${parseFloat(order.total_amount).toFixed(2)}</strong>
-                        </div>
-                    </div>
+                <!-- Payment Method -->
+                <div class="d-flex align-items-center my-3">
+                    ${order.payment_method === 'wallet' ?
+                        '<i class="fas fa-wallet text-success me-2"></i>' :
+                        '<i class="fas fa-money-bill-wave text-primary me-2"></i>'}
+                    <span class="fw-medium">${order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}</span>
 
-                    <div class="d-flex justify-content-between mt-3">
-                        ${order.can_cancel ? `
-                            <button class="btn btn-sm btn-outline-danger cancel-order-btn" data-id="${order.id}">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                        ` :
-                        type === 'completed' ? `
-                            <button class="btn btn-sm btn-outline-success add-review-btn" data-id="${order.id}">
-                                <i class="fas fa-star"></i> Review
-                            </button>
-                        ` : ''}
-                        <button class="btn btn-sm btn-primary view-order-btn" data-id="${order.id}">
-                            <i class="fas fa-eye"></i> View Details
+                    ${order.delivery_slot ?
+                        `<div class="ms-auto">
+                            <i class="fas fa-clock text-muted me-1"></i>
+                            <small class="text-muted">${order.delivery_slot}</small>
+                        </div>` :
+                        ''}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="order-footer">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            ${order.can_cancel ? `
+                                <button class="btn btn-outline-danger cancel-order-btn" data-id="${order.id}">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </button>
+                            ` :
+                            type === 'completed' ? `
+                                <button class="btn btn-outline-success add-review-btn" data-id="${order.id}">
+                                    <i class="fas fa-star me-1"></i> Review
+                                </button>
+                            ` : ''}
+                        </div>
+                        <button class="btn btn-primary view-order-btn" data-id="${order.id}">
+                            <i class="fas fa-eye me-1"></i> View Details
                         </button>
                     </div>
                 </div>
@@ -1456,20 +1644,26 @@ function renderOrderDetailsModal(order) {
             }
 
             return `
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="d-flex align-items-center">
-                        ${imageUrl ?
-                            `<img src="${imageUrl}" alt="${dishName}"
-                                  class="order-item-image me-2" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">` :
-                            `<div class="placeholder-image me-2" style="width:40px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-utensils text-muted"></i>
-                             </div>`}
-                        <div>
-                            <div>${vegBadge} <span class="fw-bold">${quantity}x</span> ${dishName}</div>
-                            <div class="text-muted small">₹${price} per item</div>
+                <div class="order-item p-2 mb-2 rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            ${imageUrl ?
+                                `<img src="${imageUrl}" alt="${dishName}" class="order-item-image">` :
+                                `<div class="placeholder-image order-item-image">
+                                    <i class="fas fa-utensils"></i>
+                                 </div>`}
+                            <div>
+                                <div class="fw-medium">${vegBadge} ${dishName}</div>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <span class="badge bg-light text-dark me-2">${quantity}x</span>
+                                    <span>₹${parseFloat(price).toFixed(2)} per item</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">₹${subtotal}</div>
                         </div>
                     </div>
-                    <span class="fw-bold">₹${subtotal}</span>
                 </div>
             `;
         }).join('');
@@ -1495,48 +1689,85 @@ function renderOrderDetailsModal(order) {
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="orderDetailsModalLabel">Order #${orderId}</h5>
+                        <h5 class="modal-title fw-bold" id="orderDetailsModalLabel">
+                            <i class="fas fa-receipt me-2 text-primary"></i>Order #${orderId}
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">
-                                <i class="far fa-calendar-alt"></i> ${formattedDate}
-                            </span>
+                        <!-- Order Status & Date -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="far fa-calendar-alt text-muted me-2"></i>
+                                <span>${formattedDate}</span>
+                            </div>
                             <span class="status-badge ${statusClass}">${statusText}</span>
                         </div>
 
-                        <h6>Order Items</h6>
-                        <div class="order-items-list mb-4">
-                            ${itemsHtml}
+                        <!-- Order Items Section -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-utensils me-2"></i>Order Items
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="order-items-list">
+                                    ${itemsHtml}
+                                </div>
 
-                            <hr>
+                                <hr class="my-3">
 
-                            <div class="d-flex justify-content-between align-items-center fw-bold">
-                                <span>Total</span>
-                                <span>₹${parseFloat(totalAmount).toFixed(2)}</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Total Amount</span>
+                                    <span class="fw-bold fs-5 text-primary">₹${parseFloat(totalAmount).toFixed(2)}</span>
+                                </div>
                             </div>
                         </div>
 
-                        <h6>Delivery Information</h6>
-                        <div class="delivery-info mb-4">
-                            <p class="mb-1"><strong>Date:</strong> ${bookingDate}</p>
-                            <p class="mb-1"><strong>Time Slot:</strong> ${deliverySlot}</p>
-                            <p class="mb-0"><strong>Payment Method:</strong> ${paymentMethodText}</p>
+                        <!-- Delivery Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-truck me-2"></i>Delivery Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-5 text-muted">Delivery Date:</div>
+                                    <div class="col-7 fw-medium">${bookingDate}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-5 text-muted">Time Slot:</div>
+                                    <div class="col-7 fw-medium">${deliverySlot}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 text-muted">Payment Method:</div>
+                                    <div class="col-7 fw-medium">
+                                        ${paymentMethod === 'wallet' ?
+                                            '<i class="fas fa-wallet text-success me-1"></i>' :
+                                            '<i class="fas fa-money-bill-wave text-primary me-1"></i>'}
+                                        ${paymentMethodText}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Close
+                        </button>
 
                         ${canCancel ? `
                             <button type="button" class="btn btn-danger cancel-order-modal-btn" data-id="${orderId}">
-                                <i class="fas fa-times"></i> Cancel Order
+                                <i class="fas fa-ban me-1"></i>Cancel Order
                             </button>
                         ` : ''}
 
                         ${status === 'delivered' ? `
                             <button type="button" class="btn btn-success add-review-modal-btn" data-id="${orderId}">
-                                <i class="fas fa-star"></i> Add Review
+                                <i class="fas fa-star me-1"></i>Add Review
                             </button>
                         ` : ''}
                     </div>
@@ -1573,6 +1804,31 @@ function showAddReviewModal(orderId) {
         }
 
         $('#review-rating').val(rating);
+
+        // Update rating text
+        const ratingTexts = [
+            'Tap a star to rate',
+            'Poor',
+            'Fair',
+            'Good',
+            'Very Good',
+            'Excellent'
+        ];
+        $('#rating-text').text(ratingTexts[rating]);
+    });
+
+    // Add character counter for review comment
+    $('#review-comment').on('input', function() {
+        const maxLength = 80;
+        const currentLength = $(this).val().length;
+        $('#char-count').text(`${currentLength}/${maxLength}`);
+
+        // Change color when approaching limit
+        if (currentLength >= maxLength * 0.8) {
+            $('#char-count').addClass('text-danger');
+        } else {
+            $('#char-count').removeClass('text-danger');
+        }
     });
 
     $('#submit-review-btn').on('click', function() {
@@ -1611,37 +1867,81 @@ function showAddReviewModal(orderId) {
  * @returns {string} HTML for the add review modal
  */
 function renderAddReviewModal(orderId) {
+    // Add styles for rating stars if they don't exist yet
+    if (!document.getElementById('review-modal-styles')) {
+        const ratingStyles = document.createElement('style');
+        ratingStyles.id = 'review-modal-styles';
+        ratingStyles.innerHTML = `
+            .rating-stars {
+                color: #d1d1d1;
+            }
+            .rating-star {
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .rating-star:hover,
+            .rating-star.active {
+                color: #ffc107;
+                transform: scale(1.1);
+            }
+            #review-comment {
+                border-radius: 12px;
+                padding: 12px;
+                resize: none;
+            }
+            #addReviewModal .card {
+                border-radius: 16px;
+                border: none;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                background-color: #f8f9fa;
+            }
+        `;
+        document.head.appendChild(ratingStyles);
+    }
+
     return `
         <div class="modal fade" id="addReviewModal" tabindex="-1" aria-labelledby="addReviewModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addReviewModalLabel">Add Review for Order #${orderId}</h5>
+                        <h5 class="modal-title fw-bold" id="addReviewModalLabel">
+                            <i class="fas fa-star text-warning me-2"></i>Add Review for Order #${orderId}
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Rating</label>
-                            <div class="rating-stars mb-2">
-                                <i class="fas fa-star rating-star" data-rating="1"></i>
-                                <i class="fas fa-star rating-star" data-rating="2"></i>
-                                <i class="fas fa-star rating-star" data-rating="3"></i>
-                                <i class="fas fa-star rating-star" data-rating="4"></i>
-                                <i class="fas fa-star rating-star" data-rating="5"></i>
+                        <div class="card mb-4">
+                            <div class="card-body text-center p-4">
+                                <h6 class="mb-3">How was your experience?</h6>
+                                <div class="rating-stars mb-3">
+                                    <i class="fas fa-star rating-star fs-2 mx-1" data-rating="1"></i>
+                                    <i class="fas fa-star rating-star fs-2 mx-1" data-rating="2"></i>
+                                    <i class="fas fa-star rating-star fs-2 mx-1" data-rating="3"></i>
+                                    <i class="fas fa-star rating-star fs-2 mx-1" data-rating="4"></i>
+                                    <i class="fas fa-star rating-star fs-2 mx-1" data-rating="5"></i>
+                                </div>
+                                <div class="text-muted small" id="rating-text">Tap a star to rate</div>
+                                <input type="hidden" id="review-rating" value="">
+                                <input type="hidden" id="review-order-id" value="${orderId}">
                             </div>
-                            <input type="hidden" id="review-rating" value="">
-                            <input type="hidden" id="review-order-id" value="${orderId}">
                         </div>
 
                         <div class="mb-3">
-                            <label for="review-comment" class="form-label">Comment</label>
-                            <textarea class="form-control" id="review-comment" rows="3" maxlength="80" placeholder="Write your review here..."></textarea>
-                            <div class="form-text">Maximum 80 characters</div>
+                            <label for="review-comment" class="form-label fw-medium">Share your thoughts (optional)</label>
+                            <textarea class="form-control" id="review-comment" rows="3" maxlength="80" placeholder="Tell us what you liked or what could be improved..."></textarea>
+                            <div class="d-flex justify-content-between mt-1">
+                                <div class="form-text">Maximum 80 characters</div>
+                                <div class="form-text" id="char-count">0/80</div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-success" id="submit-review-btn">Submit Review</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-success" id="submit-review-btn">
+                            <i class="fas fa-paper-plane me-1"></i>Submit Review
+                        </button>
                     </div>
                 </div>
             </div>
