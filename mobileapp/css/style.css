@@ -699,6 +699,7 @@ body {
     font-size: 0.8rem;
     font-weight: bold;
     text-align: center;
+    display: inline-block;
 }
 
 .status-pending {
@@ -711,6 +712,16 @@ body {
     color: #155724;
 }
 
+.status-preparing {
+    background-color: #D1ECF1;
+    color: #0C5460;
+}
+
+.status-out-for-delivery {
+    background-color: #D6D8D9;
+    color: #383D41;
+}
+
 .status-delivered {
     background-color: #CCE5FF;
     color: #004085;
@@ -719,6 +730,44 @@ body {
 .status-cancelled {
     background-color: #F8D7DA;
     color: #721C24;
+}
+
+/* Order Card Styles */
+.order-card {
+    transition: transform 0.2s ease;
+}
+
+.order-card:active {
+    transform: scale(0.98);
+}
+
+.order-items {
+    background-color: var(--light-gray);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+/* Order Tabs */
+.nav-tabs .nav-link {
+    color: var(--text-color);
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background-color: transparent;
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    border-bottom: 3px solid var(--primary-light);
+}
+
+.nav-tabs .nav-link .badge {
+    margin-left: 5px;
 }
 
 /* Profile Section */

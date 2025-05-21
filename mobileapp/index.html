@@ -1,666 +1,869 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Tiffin Delight</title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
     <div id="app">
-        <!-- Splash Screen -->
-        <div id="splash-screen" class="active">
-            <div class="splash-content">
-                <img src="img/logo.svg" alt="Tiffin Delight" class="logo">
-                <h1>Tiffin Delight</h1>
-                <p>Delicious homemade food delivered to your doorstep</p>
-                <div class="spinner-border text-success mt-4" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
+      <!-- Splash Screen -->
+      <div id="splash-screen" class="active">
+        <div class="splash-content">
+          <img src="img/logo.svg" alt="Tiffin Delight" class="logo" />
+          <h1>Tiffin Delight</h1>
+          <p>Delicious homemade food delivered to your doorstep</p>
+          <div class="spinner-border text-success mt-4" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
+      </div>
 
-        <!-- Flyout Menu -->
-        <div class="flyout-overlay"></div>
-        <div class="flyout-menu">
-            <div class="flyout-header">
-                <div class="flyout-avatar" id="flyout-avatar">A</div>
-                <div class="flyout-user-name" id="flyout-user-name">User Name</div>
-                <div class="flyout-user-email" id="flyout-user-email">user@example.com</div>
+      <!-- Flyout Menu -->
+      <div class="flyout-overlay"></div>
+      <div class="flyout-menu">
+        <div class="flyout-header">
+          <div class="flyout-avatar" id="flyout-avatar">A</div>
+          <div class="flyout-user-name" id="flyout-user-name">User Name</div>
+          <div class="flyout-user-email" id="flyout-user-email">
+            user@example.com
+          </div>
+        </div>
+        <div class="flyout-menu-items">
+          <a href="#" class="flyout-menu-item active" data-screen="home-screen">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+          <a href="#" class="flyout-menu-item" data-screen="menu-screen">
+            <i class="fas fa-utensils"></i>
+            <span>Menu</span>
+          </a>
+          <a href="#" class="flyout-menu-item" data-screen="cart-screen">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+          </a>
+          <a href="#" class="flyout-menu-item" data-screen="orders-screen">
+            <i class="fas fa-list-alt"></i>
+            <span>My Orders</span>
+          </a>
+          <div class="flyout-menu-divider"></div>
+          <a href="#" class="flyout-menu-item" data-screen="profile-screen">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+          </a>
+          <a href="#" class="flyout-menu-item" data-screen="wallet-screen">
+            <i class="fas fa-wallet"></i>
+            <span>My Wallet</span>
+          </a>
+          <a href="#" class="flyout-menu-item" id="flyout-logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Login Screen -->
+      <div id="login-screen" class="screen">
+        <div class="container">
+          <div class="text-center mb-4">
+            <img src="img/logo.png" alt="Tiffin Delight" class="logo-sm" />
+            <h2 class="mt-3">Welcome Back</h2>
+            <p class="text-muted">Sign in to continue</p>
+          </div>
+
+          <div class="alert alert-danger d-none" id="login-error"></div>
+
+          <form id="login-form">
+            <div class="mb-3">
+              <label for="login-email" class="form-label">Email</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-envelope"></i
+                ></span>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="login-email"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
             </div>
-            <div class="flyout-menu-items">
-                <a href="#" class="flyout-menu-item active" data-screen="home-screen">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </a>
-                <a href="#" class="flyout-menu-item" data-screen="menu-screen">
-                    <i class="fas fa-utensils"></i>
-                    <span>Menu</span>
-                </a>
-                <a href="#" class="flyout-menu-item" data-screen="cart-screen">
+
+            <div class="mb-3">
+              <label for="login-password" class="form-label">Password</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-lock"></i
+                ></span>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="login-password"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  class="btn btn-outline-secondary toggle-password"
+                  type="button"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-success btn-lg">
+                Sign In
+              </button>
+            </div>
+          </form>
+
+          <div class="text-center mt-4">
+            <p>
+              Don't have an account? <a href="#" id="show-register">Sign Up</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Screen -->
+      <div id="register-screen" class="screen">
+        <div class="container">
+          <div class="text-center mb-4">
+            <img src="img/logo.png" alt="Tiffin Delight" class="logo-sm" />
+            <h2 class="mt-3">Create Account</h2>
+            <p class="text-muted">Sign up to get started</p>
+          </div>
+
+          <div class="alert alert-danger d-none" id="register-error"></div>
+
+          <form id="register-form">
+            <div class="mb-3">
+              <label for="register-name" class="form-label">Full Name</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-user"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="register-name"
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="register-email" class="form-label">Email</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-envelope"></i
+                ></span>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="register-email"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="register-phone" class="form-label">Phone</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-phone"></i
+                ></span>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="register-phone"
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="register-address" class="form-label">Address</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-map-marker-alt"></i
+                ></span>
+                <textarea
+                  class="form-control"
+                  id="register-address"
+                  placeholder="Enter your address"
+                  required
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="register-password" class="form-label">Password</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-lock"></i
+                ></span>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="register-password"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  class="btn btn-outline-secondary toggle-password"
+                  type="button"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-success btn-lg">
+                Sign Up
+              </button>
+            </div>
+          </form>
+
+          <div class="text-center mt-4">
+            <p>
+              Already have an account? <a href="#" id="show-login">Sign In</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main App Container -->
+      <div id="main-app" class="screen">
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+          <a href="#" class="nav-item active" data-screen="home-screen">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+          <a href="#" class="nav-item" data-screen="menu-screen">
+            <i class="fas fa-utensils"></i>
+            <span>Menu</span>
+          </a>
+          <a href="#" class="nav-item" data-screen="cart-screen">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="badge bg-danger cart-badge">0</span>
+          </a>
+          <a href="#" class="nav-item" data-screen="orders-screen">
+            <i class="fas fa-list-alt"></i>
+            <span>Orders</span>
+            <span class="badge bg-danger d-none">0</span>
+          </a>
+        </nav>
+
+        <!-- Content Screens -->
+        <div class="content-container">
+          <!-- Home Screen -->
+          <div id="home-screen" class="content-screen active">
+            <!-- Header -->
+            <header class="app-header">
+              <div class="header-content">
+                <button class="menu-toggle" id="menu-toggle">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+                <div class="header-logo">
+                  <img src="img/logo.svg" alt="Tiffin Delight" />
+                  <h1>Tiffin Delight</h1>
+                </div>
+                <div class="header-actions">
+                  <button class="header-action-btn" id="search-btn">
+                    <i class="fas fa-search"></i>
+                  </button>
+                  <button
+                    class="header-action-btn"
+                    id="cart-btn"
+                    data-screen="cart-screen"
+                  >
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Cart</span>
-                </a>
-                <a href="#" class="flyout-menu-item" data-screen="orders-screen">
-                    <i class="fas fa-list-alt"></i>
-                    <span>My Orders</span>
-                </a>
-                <div class="flyout-menu-divider"></div>
-                <a href="#" class="flyout-menu-item" data-screen="profile-screen">
-                    <i class="fas fa-user"></i>
-                    <span>My Profile</span>
-                </a>
-                <a href="#" class="flyout-menu-item" data-screen="wallet-screen">
-                    <i class="fas fa-wallet"></i>
-                    <span>My Wallet</span>
-                </a>
-                <a href="#" class="flyout-menu-item" id="flyout-logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </a>
+                    <span class="header-badge cart-badge">0</span>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <!-- Banner Slider -->
+            <div class="swiper banner-slider">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                  <div class="banner-slide">
+                    <img
+                      src="https://source.unsplash.com/random/800x400/?food,indian"
+                      alt="Special Offer"
+                    />
+                    <div class="banner-content">
+                      <h3>Special Thali Offer</h3>
+                      <p>Get 20% off on all thali orders this week</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="swiper-slide">
+                  <div class="banner-slide">
+                    <img
+                      src="https://source.unsplash.com/random/800x400/?food,curry"
+                      alt="New Menu"
+                    />
+                    <div class="banner-content">
+                      <h3>New Menu Items</h3>
+                      <p>Try our new South Indian specialties</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="swiper-slide">
+                  <div class="banner-slide">
+                    <img
+                      src="https://source.unsplash.com/random/800x400/?food,dessert"
+                      alt="Desserts"
+                    />
+                    <div class="banner-content">
+                      <h3>Sweet Treats</h3>
+                      <p>Delicious desserts now available</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-pagination"></div>
             </div>
-        </div>
 
-        <!-- Login Screen -->
-        <div id="login-screen" class="screen">
-            <div class="container">
-                <div class="text-center mb-4">
-                    <img src="img/logo.png" alt="Tiffin Delight" class="logo-sm">
-                    <h2 class="mt-3">Welcome Back</h2>
-                    <p class="text-muted">Sign in to continue</p>
-                </div>
-
-                <div class="alert alert-danger d-none" id="login-error"></div>
-
-                <form id="login-form">
-                    <div class="mb-3">
-                        <label for="login-email" class="form-label">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                            <input type="email" class="form-control" id="login-email" placeholder="Enter your email" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="login-password" class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control" id="login-password" placeholder="Enter your password" required>
-                            <button class="btn btn-outline-secondary toggle-password" type="button">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success btn-lg">Sign In</button>
-                    </div>
-                </form>
-
-                <div class="text-center mt-4">
-                    <p>Don't have an account? <a href="#" id="show-register">Sign Up</a></p>
-                </div>
+            <!-- Category Chips -->
+            <div class="category-chips">
+              <div class="category-chip active">All</div>
+              <div class="category-chip veg-filter">
+                <span class="veg-badge"></span> Vegetarian
+              </div>
+              <div class="category-chip non-veg-filter">
+                <span class="non-veg-badge"></span> Non-Vegetarian
+              </div>
             </div>
-        </div>
 
-        <!-- Register Screen -->
-        <div id="register-screen" class="screen">
-            <div class="container">
-                <div class="text-center mb-4">
-                    <img src="img/logo.png" alt="Tiffin Delight" class="logo-sm">
-                    <h2 class="mt-3">Create Account</h2>
-                    <p class="text-muted">Sign up to get started</p>
-                </div>
-
-                <div class="alert alert-danger d-none" id="register-error"></div>
-
-                <form id="register-form">
-                    <div class="mb-3">
-                        <label for="register-name" class="form-label">Full Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-user"></i></span>
-                            <input type="text" class="form-control" id="register-name" placeholder="Enter your full name" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="register-email" class="form-label">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                            <input type="email" class="form-control" id="register-email" placeholder="Enter your email" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="register-phone" class="form-label">Phone</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                            <input type="tel" class="form-control" id="register-phone" placeholder="Enter your phone number" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="register-address" class="form-label">Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                            <textarea class="form-control" id="register-address" placeholder="Enter your address" required></textarea>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="register-password" class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control" id="register-password" placeholder="Enter your password" required>
-                            <button class="btn btn-outline-secondary toggle-password" type="button">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success btn-lg">Sign Up</button>
-                    </div>
-                </form>
-
-                <div class="text-center mt-4">
-                    <p>Already have an account? <a href="#" id="show-login">Sign In</a></p>
-                </div>
+            <!-- Popular Dishes Section -->
+            <div class="section-header">
+              <h2 class="section-title">Popular Dishes</h2>
+              <a href="#" class="section-action" data-screen="menu-screen"
+                >View All</a
+              >
             </div>
-        </div>
 
-        <!-- Main App Container -->
-        <div id="main-app" class="screen">
-            <!-- Bottom Navigation -->
-            <nav class="bottom-nav">
-                <a href="#" class="nav-item active" data-screen="home-screen">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </a>
-                <a href="#" class="nav-item" data-screen="menu-screen">
-                    <i class="fas fa-utensils"></i>
-                    <span>Menu</span>
-                </a>
-                <a href="#" class="nav-item" data-screen="cart-screen">
+            <div class="horizontal-scroll" id="popular-dishes">
+              <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Recommended Section -->
+            <div class="section-header">
+              <h2 class="section-title">Recommended for You</h2>
+              <a href="#" class="section-action" data-screen="menu-screen"
+                >View All</a
+              >
+            </div>
+
+            <div class="horizontal-scroll" id="recommended-dishes">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Menu Screen -->
+          <div id="menu-screen" class="content-screen">
+            <!-- Header -->
+            <header class="app-header">
+              <div class="header-content">
+                <button class="menu-toggle" id="menu-toggle-2">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+                <div class="header-logo">
+                  <img src="img/logo.svg" alt="Tiffin Delight" />
+                  <h1>Menu</h1>
+                </div>
+                <div class="header-actions">
+                  <button class="header-action-btn" id="menu-search-btn">
+                    <i class="fas fa-search"></i>
+                  </button>
+                  <button
+                    class="header-action-btn"
+                    id="cart-btn-2"
+                    data-screen="cart-screen"
+                  >
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Cart</span>
-                    <span class="badge bg-danger cart-badge">0</span>
-                </a>
-                <a href="#" class="nav-item" data-screen="orders-screen">
-                    <i class="fas fa-list-alt"></i>
-                    <span>Orders</span>
-                </a>
-            </nav>
-
-            <!-- Content Screens -->
-            <div class="content-container">
-                <!-- Home Screen -->
-                <div id="home-screen" class="content-screen active">
-                    <!-- Header -->
-                    <header class="app-header">
-                        <div class="header-content">
-                            <button class="menu-toggle" id="menu-toggle">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </button>
-                            <div class="header-logo">
-                                <img src="img/logo.svg" alt="Tiffin Delight">
-                                <h1>Tiffin Delight</h1>
-                            </div>
-                            <div class="header-actions">
-                                <button class="header-action-btn" id="search-btn">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                <button class="header-action-btn" id="cart-btn" data-screen="cart-screen">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <span class="header-badge cart-badge">0</span>
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <!-- Banner Slider -->
-                    <div class="swiper banner-slider">
-                        <div class="swiper-wrapper">
-                            <div class="swiper-slide">
-                                <div class="banner-slide">
-                                    <img src="https://source.unsplash.com/random/800x400/?food,indian" alt="Special Offer">
-                                    <div class="banner-content">
-                                        <h3>Special Thali Offer</h3>
-                                        <p>Get 20% off on all thali orders this week</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="banner-slide">
-                                    <img src="https://source.unsplash.com/random/800x400/?food,curry" alt="New Menu">
-                                    <div class="banner-content">
-                                        <h3>New Menu Items</h3>
-                                        <p>Try our new South Indian specialties</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="banner-slide">
-                                    <img src="https://source.unsplash.com/random/800x400/?food,dessert" alt="Desserts">
-                                    <div class="banner-content">
-                                        <h3>Sweet Treats</h3>
-                                        <p>Delicious desserts now available</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-pagination"></div>
-                    </div>
-
-                    <!-- Category Chips -->
-                    <div class="category-chips">
-                        <div class="category-chip active">All</div>
-                        <div class="category-chip veg-filter"><span class="veg-badge"></span> Vegetarian</div>
-                        <div class="category-chip non-veg-filter"><span class="non-veg-badge"></span> Non-Vegetarian</div>
-                    </div>
-
-                    <!-- Popular Dishes Section -->
-                    <div class="section-header">
-                        <h2 class="section-title">Popular Dishes</h2>
-                        <a href="#" class="section-action" data-screen="menu-screen">View All</a>
-                    </div>
-
-                    <div class="horizontal-scroll" id="popular-dishes">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-
-
-
-                    <!-- Recommended Section -->
-                    <div class="section-header">
-                        <h2 class="section-title">Recommended for You</h2>
-                        <a href="#" class="section-action" data-screen="menu-screen">View All</a>
-                    </div>
-
-                    <div class="horizontal-scroll" id="recommended-dishes">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
+                    <span class="header-badge cart-badge">0</span>
+                  </button>
                 </div>
+              </div>
+            </header>
 
-                <!-- Menu Screen -->
-                <div id="menu-screen" class="content-screen">
-                    <!-- Header -->
-                    <header class="app-header">
-                        <div class="header-content">
-                            <button class="menu-toggle" id="menu-toggle-2">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </button>
-                            <div class="header-logo">
-                                <img src="img/logo.svg" alt="Tiffin Delight">
-                                <h1>Menu</h1>
-                            </div>
-                            <div class="header-actions">
-                                <button class="header-action-btn" id="menu-search-btn">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                <button class="header-action-btn" id="cart-btn-2" data-screen="cart-screen">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <span class="header-badge cart-badge">0</span>
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <!-- Category Chips -->
-                    <div class="category-chips">
-                        <div class="category-chip active">All</div>
-                        <div class="category-chip veg-filter"><span class="veg-badge"></span> Vegetarian</div>
-                        <div class="category-chip non-veg-filter"><span class="non-veg-badge"></span> Non-Vegetarian</div>
-                    </div>
-
-                    <!-- Menu Items Grid -->
-                    <div class="container">
-                        <div class="row" id="menu-items-grid">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cart Screen -->
-                <div id="cart-screen" class="content-screen">
-                    <!-- Header -->
-                    <header class="app-header">
-                        <div class="header-content">
-                            <button class="menu-toggle" id="menu-toggle-3">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </button>
-                            <div class="header-logo">
-                                <img src="img/logo.svg" alt="Tiffin Delight">
-                                <h1>Your Cart</h1>
-                            </div>
-                            <div class="header-actions">
-                                <button class="header-action-btn" id="clear-cart-btn">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="container pb-5" id="cart-container">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Checkout Screen -->
-                <div id="checkout-screen" class="content-screen">
-                    <!-- Header -->
-                    <header class="app-header">
-                        <div class="header-content">
-                            <button class="back-btn" id="back-to-cart-btn">
-                                <i class="fas fa-arrow-left"></i>
-                            </button>
-                            <div class="header-logo">
-                                <img src="img/logo.svg" alt="Tiffin Delight">
-                                <h1>Checkout</h1>
-                            </div>
-                            <div class="header-actions">
-                                <!-- Empty for balance -->
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="container pb-5" id="checkout-container">
-                        <div class="checkout-section">
-                            <div class="checkout-section-title">
-                                <i class="fas fa-map-marker-alt"></i>
-                                Delivery Address
-                            </div>
-                            <div class="address-details mb-3" id="delivery-address">
-                                <!-- Will be populated by JavaScript -->
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary w-100" id="change-address-btn">
-                                <i class="fas fa-edit"></i> Change Address
-                            </button>
-                        </div>
-
-                        <div class="checkout-section">
-                            <div class="checkout-section-title">
-                                <i class="fas fa-credit-card"></i>
-                                Payment Method
-                            </div>
-                            <div class="payment-options" id="payment-options">
-                                <div class="payment-option active" data-payment="wallet">
-                                    <div class="payment-option-icon">
-                                        <i class="fas fa-wallet text-primary"></i>
-                                    </div>
-                                    <div class="payment-option-details">
-                                        <div class="payment-option-title">Wallet</div>
-                                        <div class="payment-option-description">Pay using your wallet balance</div>
-                                        <div class="payment-option-balance" id="wallet-balance-checkout">Balance: ₹0.00</div>
-                                    </div>
-                                </div>
-
-                                <div class="payment-option" data-payment="cash">
-                                    <div class="payment-option-icon">
-                                        <i class="fas fa-money-bill-wave text-success"></i>
-                                    </div>
-                                    <div class="payment-option-details">
-                                        <div class="payment-option-title">Cash on Delivery</div>
-                                        <div class="payment-option-description">Pay when your order arrives</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="checkout-section">
-                            <div class="checkout-section-title">
-                                <i class="fas fa-receipt"></i>
-                                Order Summary
-                            </div>
-                            <div id="checkout-items">
-                                <!-- Will be populated by JavaScript -->
-                            </div>
-
-                            <div class="cart-summary mt-3">
-                                <div class="cart-summary-row">
-                                    <span>Subtotal</span>
-                                    <span id="checkout-subtotal">₹0.00</span>
-                                </div>
-                                <div class="cart-summary-row">
-                                    <span>Delivery Fee</span>
-                                    <span id="checkout-delivery-fee">₹0.00</span>
-                                </div>
-                                <div class="cart-summary-row">
-                                    <span>Taxes</span>
-                                    <span id="checkout-taxes">₹0.00</span>
-                                </div>
-                                <div class="cart-summary-row cart-summary-total">
-                                    <span>Total</span>
-                                    <span id="checkout-total">₹0.00</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="checkout-sticky-bottom">
-                        <div class="d-grid">
-                            <button class="btn btn-success btn-lg" id="place-order-btn">
-                                <i class="fas fa-check-circle"></i> Place Order
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Order Success Screen -->
-                <div id="order-success-screen" class="content-screen">
-                    <div class="order-success-container">
-                        <div class="order-success-icon">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <h2 class="order-success-title">Order Placed Successfully!</h2>
-                        <p class="order-success-message">Your delicious food is on its way to being prepared.</p>
-
-                        <div class="order-success-details">
-                            <div class="order-success-detail-row">
-                                <span class="order-success-detail-label">Order ID</span>
-                                <span class="order-success-detail-value" id="success-order-id">#12345</span>
-                            </div>
-                            <div class="order-success-detail-row">
-                                <span class="order-success-detail-label">Date</span>
-                                <span class="order-success-detail-value" id="success-order-date">June 15, 2023</span>
-                            </div>
-                            <div class="order-success-detail-row">
-                                <span class="order-success-detail-label">Total Amount</span>
-                                <span class="order-success-detail-value" id="success-order-amount">₹450.00</span>
-                            </div>
-                            <div class="order-success-detail-row">
-                                <span class="order-success-detail-label">Payment Method</span>
-                                <span class="order-success-detail-value" id="success-payment-method">Wallet</span>
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success" id="track-order-btn">
-                                <i class="fas fa-map-marker-alt"></i> Track Order
-                            </button>
-                            <button class="btn btn-outline-primary" id="continue-shopping-btn">
-                                <i class="fas fa-utensils"></i> Continue Shopping
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Orders Screen -->
-                <div id="orders-screen" class="content-screen">
-                    <!-- Header -->
-                    <header class="app-header">
-                        <div class="header-content">
-                            <button class="menu-toggle" id="menu-toggle-4">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </button>
-                            <div class="header-logo">
-                                <img src="img/logo.svg" alt="Tiffin Delight">
-                                <h1>Your Orders</h1>
-                            </div>
-                            <div class="header-actions">
-                                <button class="header-action-btn" id="filter-orders-btn">
-                                    <i class="fas fa-filter"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <!-- Order Tabs -->
-                    <div class="nav nav-tabs nav-fill" id="order-tabs" role="tablist">
-                        <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active-orders" type="button" role="tab" aria-controls="active-orders" aria-selected="true">Active</button>
-                        <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-orders" type="button" role="tab" aria-controls="completed-orders" aria-selected="false">Completed</button>
-                        <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled-orders" type="button" role="tab" aria-controls="cancelled-orders" aria-selected="false">Cancelled</button>
-                    </div>
-
-                    <div class="tab-content" id="orders-tab-content">
-                        <div class="tab-pane fade show active" id="active-orders" role="tabpanel" aria-labelledby="active-tab">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                        <div class="tab-pane fade" id="completed-orders" role="tabpanel" aria-labelledby="completed-tab">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                        <div class="tab-pane fade" id="cancelled-orders" role="tabpanel" aria-labelledby="cancelled-tab">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Profile Screen -->
-                <div id="profile-screen" class="content-screen">
-                    <!-- Header -->
-                    <header class="app-header">
-                        <div class="header-content">
-                            <button class="menu-toggle" id="menu-toggle-5">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </button>
-                            <div class="header-logo">
-                                <img src="img/logo.svg" alt="Tiffin Delight">
-                                <h1>Your Profile</h1>
-                            </div>
-                            <div class="header-actions">
-                                <button class="header-action-btn" id="edit-profile-btn">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="container" id="profile-container">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Wallet Screen -->
-                <div id="wallet-screen" class="content-screen">
-                    <!-- Header -->
-                    <header class="app-header">
-                        <div class="header-content">
-                            <button class="menu-toggle" id="menu-toggle-6">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </button>
-                            <div class="header-logo">
-                                <img src="img/logo.svg" alt="Tiffin Delight">
-                                <h1>My Wallet</h1>
-                            </div>
-                            <div class="header-actions">
-                                <button class="header-action-btn" id="wallet-history-btn">
-                                    <i class="fas fa-history"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="container" id="wallet-container">
-                        <div class="wallet-card">
-                            <div class="wallet-balance-label">Available Balance</div>
-                            <div class="wallet-balance" id="wallet-balance">₹0.00</div>
-                            <div class="wallet-actions">
-                                <button class="wallet-action-btn w-100" id="add-money-btn">
-                                    <i class="fas fa-plus-circle"></i> Add Money
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="section-header">
-                            <h2 class="section-title">Recent Transactions</h2>
-                            <a href="#" class="section-action" id="view-all-transactions">View All</a>
-                        </div>
-
-                        <div class="transactions-list" id="recent-transactions">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-
-                        <div class="section-header mt-4">
-                            <h2 class="section-title">Quick Recharge</h2>
-                        </div>
-
-                        <div class="recharge-amount-options">
-                            <div class="recharge-amount-option" data-amount="100">
-                                <div class="recharge-amount-value">₹100</div>
-                            </div>
-                            <div class="recharge-amount-option" data-amount="200">
-                                <div class="recharge-amount-value">₹200</div>
-                            </div>
-                            <div class="recharge-amount-option" data-amount="500">
-                                <div class="recharge-amount-value">₹500</div>
-                            </div>
-                            <div class="recharge-amount-option" data-amount="1000">
-                                <div class="recharge-amount-value">₹1000</div>
-                            </div>
-                            <div class="recharge-amount-option" data-amount="2000">
-                                <div class="recharge-amount-value">₹2000</div>
-                            </div>
-                            <div class="recharge-amount-option" data-amount="5000">
-                                <div class="recharge-amount-value">₹5000</div>
-                            </div>
-                        </div>
-
-                        <div class="d-grid mt-3">
-                            <button class="btn btn-success" id="proceed-recharge-btn">
-                                <i class="fas fa-wallet"></i> Proceed to Recharge
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <!-- Category Chips -->
+            <div class="category-chips">
+              <div class="category-chip active">All</div>
+              <div class="category-chip veg-filter">
+                <span class="veg-badge"></span> Vegetarian
+              </div>
+              <div class="category-chip non-veg-filter">
+                <span class="non-veg-badge"></span> Non-Vegetarian
+              </div>
             </div>
+
+            <!-- Menu Items Grid -->
+            <div class="container">
+              <div class="row" id="menu-items-grid">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Cart Screen -->
+          <div id="cart-screen" class="content-screen">
+            <!-- Header -->
+            <header class="app-header">
+              <div class="header-content">
+                <button class="menu-toggle" id="menu-toggle-3">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+                <div class="header-logo">
+                  <img src="img/logo.svg" alt="Tiffin Delight" />
+                  <h1>Your Cart</h1>
+                </div>
+                <div class="header-actions">
+                  <button class="header-action-btn" id="clear-cart-btn">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <div class="container pb-5" id="cart-container">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Checkout Screen -->
+          <div id="checkout-screen" class="content-screen">
+            <!-- Header -->
+            <header class="app-header">
+              <div class="header-content">
+                <button class="back-btn" id="back-to-cart-btn">
+                  <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="header-logo">
+                  <img src="img/logo.svg" alt="Tiffin Delight" />
+                  <h1>Checkout</h1>
+                </div>
+                <div class="header-actions">
+                  <!-- Empty for balance -->
+                </div>
+              </div>
+            </header>
+
+            <div class="container pb-5" id="checkout-container">
+              <div class="checkout-section">
+                <div class="checkout-section-title">
+                  <i class="fas fa-map-marker-alt"></i>
+                  Delivery Address
+                </div>
+                <div class="address-details mb-3" id="delivery-address">
+                  <!-- Will be populated by JavaScript -->
+                </div>
+                <button
+                  class="btn btn-sm btn-outline-primary w-100"
+                  id="change-address-btn"
+                >
+                  <i class="fas fa-edit"></i> Change Address
+                </button>
+              </div>
+
+              <div class="checkout-section">
+                <div class="checkout-section-title">
+                  <i class="fas fa-credit-card"></i>
+                  Payment Method
+                </div>
+                <div class="payment-options" id="payment-options">
+                  <div class="payment-option active" data-payment="wallet">
+                    <div class="payment-option-icon">
+                      <i class="fas fa-wallet text-primary"></i>
+                    </div>
+                    <div class="payment-option-details">
+                      <div class="payment-option-title">Wallet</div>
+                      <div class="payment-option-description">
+                        Pay using your wallet balance
+                      </div>
+                      <div
+                        class="payment-option-balance"
+                        id="wallet-balance-checkout"
+                      >
+                        Balance: ₹0.00
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="payment-option" data-payment="cash">
+                    <div class="payment-option-icon">
+                      <i class="fas fa-money-bill-wave text-success"></i>
+                    </div>
+                    <div class="payment-option-details">
+                      <div class="payment-option-title">Cash on Delivery</div>
+                      <div class="payment-option-description">
+                        Pay when your order arrives
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="checkout-section">
+                <div class="checkout-section-title">
+                  <i class="fas fa-receipt"></i>
+                  Order Summary
+                </div>
+                <div id="checkout-items">
+                  <!-- Will be populated by JavaScript -->
+                </div>
+
+                <div class="cart-summary mt-3">
+                  <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span id="checkout-subtotal">₹0.00</span>
+                  </div>
+                  <div class="cart-summary-row">
+                    <span>Delivery Fee</span>
+                    <span id="checkout-delivery-fee">₹0.00</span>
+                  </div>
+                  <div class="cart-summary-row">
+                    <span>Taxes</span>
+                    <span id="checkout-taxes">₹0.00</span>
+                  </div>
+                  <div class="cart-summary-row cart-summary-total">
+                    <span>Total</span>
+                    <span id="checkout-total">₹0.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="checkout-sticky-bottom">
+              <div class="d-grid">
+                <button class="btn btn-success btn-lg" id="place-order-btn">
+                  <i class="fas fa-check-circle"></i> Place Order
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Success Screen -->
+          <div id="order-success-screen" class="content-screen">
+            <div class="order-success-container">
+              <div class="order-success-icon">
+                <i class="fas fa-check"></i>
+              </div>
+              <h2 class="order-success-title">Order Placed Successfully!</h2>
+              <p class="order-success-message">
+                Your delicious food is on its way to being prepared.
+              </p>
+
+              <div class="order-success-details">
+                <div class="order-success-detail-row">
+                  <span class="order-success-detail-label">Order ID</span>
+                  <span class="order-success-detail-value" id="success-order-id"
+                    >#12345</span
+                  >
+                </div>
+                <div class="order-success-detail-row">
+                  <span class="order-success-detail-label">Date</span>
+                  <span
+                    class="order-success-detail-value"
+                    id="success-order-date"
+                    >June 15, 2023</span
+                  >
+                </div>
+                <div class="order-success-detail-row">
+                  <span class="order-success-detail-label">Total Amount</span>
+                  <span
+                    class="order-success-detail-value"
+                    id="success-order-amount"
+                    >₹450.00</span
+                  >
+                </div>
+                <div class="order-success-detail-row">
+                  <span class="order-success-detail-label">Payment Method</span>
+                  <span
+                    class="order-success-detail-value"
+                    id="success-payment-method"
+                    >Wallet</span
+                  >
+                </div>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button class="btn btn-success" id="track-order-btn">
+                  <i class="fas fa-map-marker-alt"></i> Track Order
+                </button>
+                <button
+                  class="btn btn-outline-primary"
+                  id="continue-shopping-btn"
+                >
+                  <i class="fas fa-utensils"></i> Continue Shopping
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Screen -->
+          <div id="orders-screen" class="content-screen">
+            <!-- Header -->
+            <header class="app-header">
+              <div class="header-content">
+                <button class="menu-toggle" id="menu-toggle-4">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+                <div class="header-logo">
+                  <img src="img/logo.svg" alt="Tiffin Delight" />
+                  <h1>Your Orders</h1>
+                </div>
+                <div class="header-actions">
+                  <button class="header-action-btn" id="filter-orders-btn">
+                    <i class="fas fa-filter"></i>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <!-- Order Tabs -->
+            <div class="nav nav-tabs nav-fill" id="order-tabs" role="tablist">
+              <button
+                class="nav-link active"
+                id="active-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#active-orders"
+                type="button"
+                role="tab"
+                aria-controls="active-orders"
+                aria-selected="true"
+              >
+                Active
+              </button>
+              <button
+                class="nav-link"
+                id="completed-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#completed-orders"
+                type="button"
+                role="tab"
+                aria-controls="completed-orders"
+                aria-selected="false"
+              >
+                Completed
+              </button>
+              <button
+                class="nav-link"
+                id="cancelled-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#cancelled-orders"
+                type="button"
+                role="tab"
+                aria-controls="cancelled-orders"
+                aria-selected="false"
+              >
+                Cancelled
+              </button>
+            </div>
+
+            <div class="tab-content" id="orders-tab-content">
+              <div
+                class="tab-pane fade show active"
+                id="active-orders"
+                role="tabpanel"
+                aria-labelledby="active-tab"
+              >
+                <!-- Will be populated by JavaScript -->
+              </div>
+              <div
+                class="tab-pane fade"
+                id="completed-orders"
+                role="tabpanel"
+                aria-labelledby="completed-tab"
+              >
+                <!-- Will be populated by JavaScript -->
+              </div>
+              <div
+                class="tab-pane fade"
+                id="cancelled-orders"
+                role="tabpanel"
+                aria-labelledby="cancelled-tab"
+              >
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Screen -->
+          <div id="profile-screen" class="content-screen">
+            <!-- Header -->
+            <header class="app-header">
+              <div class="header-content">
+                <button class="menu-toggle" id="menu-toggle-5">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+                <div class="header-logo">
+                  <img src="img/logo.svg" alt="Tiffin Delight" />
+                  <h1>Your Profile</h1>
+                </div>
+                <div class="header-actions">
+                  <button class="header-action-btn" id="edit-profile-btn">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <div class="container" id="profile-container">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Wallet Screen -->
+          <div id="wallet-screen" class="content-screen">
+            <!-- Header -->
+            <header class="app-header">
+              <div class="header-content">
+                <button class="menu-toggle" id="menu-toggle-6">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+                <div class="header-logo">
+                  <img src="img/logo.svg" alt="Tiffin Delight" />
+                  <h1>My Wallet</h1>
+                </div>
+                <div class="header-actions">
+                  <button class="header-action-btn" id="wallet-history-btn">
+                    <i class="fas fa-history"></i>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <div class="container" id="wallet-container">
+              <div class="wallet-card">
+                <div class="wallet-balance-label">Available Balance</div>
+                <div class="wallet-balance" id="wallet-balance">₹0.00</div>
+                <div class="wallet-actions">
+                  <button class="wallet-action-btn w-100" id="add-money-btn">
+                    <i class="fas fa-plus-circle"></i> Add Money
+                  </button>
+                </div>
+              </div>
+
+              <div class="section-header">
+                <h2 class="section-title">Recent Transactions</h2>
+                <a href="#" class="section-action" id="view-all-transactions"
+                  >View All</a
+                >
+              </div>
+
+              <div class="transactions-list" id="recent-transactions">
+                <!-- Will be populated by JavaScript -->
+              </div>
+
+              <div class="section-header mt-4">
+                <h2 class="section-title">Quick Recharge</h2>
+              </div>
+
+              <div class="recharge-amount-options">
+                <div class="recharge-amount-option" data-amount="100">
+                  <div class="recharge-amount-value">₹100</div>
+                </div>
+                <div class="recharge-amount-option" data-amount="200">
+                  <div class="recharge-amount-value">₹200</div>
+                </div>
+                <div class="recharge-amount-option" data-amount="500">
+                  <div class="recharge-amount-value">₹500</div>
+                </div>
+                <div class="recharge-amount-option" data-amount="1000">
+                  <div class="recharge-amount-value">₹1000</div>
+                </div>
+                <div class="recharge-amount-option" data-amount="2000">
+                  <div class="recharge-amount-value">₹2000</div>
+                </div>
+                <div class="recharge-amount-option" data-amount="5000">
+                  <div class="recharge-amount-value">₹5000</div>
+                </div>
+              </div>
+
+              <div class="d-grid mt-3">
+                <button class="btn btn-success" id="proceed-recharge-btn">
+                  <i class="fas fa-wallet"></i> Proceed to Recharge
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Loading Overlay -->
     <div id="loading-overlay">
-        <div class="spinner-border text-success" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
     </div>
 
     <!-- Toast Notification -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toast-notification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto">Tiffin Delight</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                <!-- Toast message will be set dynamically -->
-            </div>
+      <div
+        id="toast-notification"
+        class="toast"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="toast-header">
+          <strong class="me-auto">Tiffin Delight</strong>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
         </div>
+        <div class="toast-body">
+          <!-- Toast message will be set dynamically -->
+        </div>
+      </div>
     </div>
 
     <!-- JavaScript -->
@@ -675,6 +878,7 @@
     <script src="js/dishes.js"></script>
     <script src="js/orders.js"></script>
     <script src="js/profile.js"></script>
+    <script src="js/test-orders.js"></script>
     <script src="js/app.js"></script>
-</body>
+  </body>
 </html>

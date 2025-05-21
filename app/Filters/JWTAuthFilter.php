@@ -9,14 +9,9 @@ use Config\Services;
 
 class JWTAuthFilter implements FilterInterface
 {
-    /**
-     * Do whatever processing this filter needs to do.
-     *
-     * @param RequestInterface $request
-     * @param array|null       $arguments
-     *
-     * @return mixed
-     */
+    // Add property declaration
+    public $user;
+
     public function before(RequestInterface $request, $arguments = null)
     {
         helper('jwt');

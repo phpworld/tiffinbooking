@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\BookingModel;
 use App\Models\BookingItemModel;
 use App\Models\DeliverySlotModel;
+use App\Models\DishModel;
 use App\Models\WalletModel;
 use CodeIgniter\API\ResponseTrait;
 
@@ -16,6 +17,7 @@ class Booking extends BaseController
     protected $bookingModel;
     protected $bookingItemModel;
     protected $deliverySlotModel;
+    protected $dishModel;
     protected $walletModel;
     protected $walletTransactionModel;
 
@@ -25,6 +27,7 @@ class Booking extends BaseController
         $this->bookingModel = new BookingModel();
         $this->bookingItemModel = new BookingItemModel();
         $this->deliverySlotModel = new DeliverySlotModel();
+        $this->dishModel = new DishModel();
         $this->walletModel = new WalletModel();
         $this->walletTransactionModel = new \App\Models\WalletTransactionModel();
     }
@@ -44,42 +47,55 @@ class Booking extends BaseController
 
         $userId = $userData['id'];
 
-        // Get all bookings for the user
+        // Get all bookings for the user with pagination
         $bookings = $this->bookingModel->where('user_id', $userId)
-                                      ->orderBy('created_at', 'DESC')
-                                      ->findAll();
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
 
         $processedBookings = [];
-
         foreach ($bookings as $booking) {
-            // Get booking items
-            $items = $this->bookingItemModel->where('booking_id', $booking['id'])->findAll();
+            // Get booking items with dish details using a join query
+            $db = \Config\Database::connect();
+            $builder = $db->table('booking_items');
+            $builder->select('booking_items.*, dishes.name as dish_name, dishes.image, dishes.is_vegetarian');
+            $builder->join('dishes', 'dishes.id = booking_items.dish_id', 'left');
+            $builder->where('booking_items.booking_id', $booking['id']);
+            $items = $builder->get()->getResultArray();
 
             $processedItems = [];
             foreach ($items as $item) {
+                // Process image URL if available
+                $imageUrl = '';
+                if (!empty($item['image'])) {
+                    $imageUrl = base_url('/uploads/dishes/' . $item['image']);
+                }
+
+                // Use dish name from join or default to Unknown Dish
+                $dishName = !empty($item['dish_name']) ? $item['dish_name'] : 'Unknown Dish';
+
                 $processedItems[] = [
-                    'id' => $item['id'],
-                    'dish_id' => $item['dish_id'],
-                    'dish_name' => $item['dish_name'],
+                    'dish_name' => $dishName,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
-                    'subtotal' => $item['price'] * $item['quantity']
+                    'image' => $imageUrl,
+                    'dish_id' => $item['dish_id'] ?? null,
+                    'is_vegetarian' => isset($item['is_vegetarian']) ? (bool)$item['is_vegetarian'] : null
                 ];
             }
 
             // Get delivery slot if available
-            $slotName = 'Standard Delivery';
+            /*  $slotName = 'Standard Delivery';
             if (!empty($booking['delivery_slot_id'])) {
                 $slot = $this->deliverySlotModel->find($booking['delivery_slot_id']);
                 if ($slot) {
                     $slotName = $slot['slot_name'];
                 }
             }
-
+*/
             $processedBookings[] = [
                 'id' => $booking['id'],
                 'booking_date' => $booking['booking_date'],
-                'delivery_slot' => $slotName,
+                // 'delivery_slot' => $slotName,
                 'total_amount' => $booking['total_amount'],
                 'status' => $booking['status'],
                 'payment_method' => $booking['payment_method'],
@@ -90,12 +106,10 @@ class Booking extends BaseController
             ];
         }
 
-        $response = [
+        return $this->respond([
             'status' => true,
             'data' => $processedBookings
-        ];
-
-        return $this->respond($response);
+        ]);
     }
 
     /**
@@ -126,36 +140,51 @@ class Booking extends BaseController
             return $this->failForbidden('You do not have permission to view this booking');
         }
 
-        // Get booking items
-        $items = $this->bookingItemModel->where('booking_id', $booking['id'])->findAll();
+        // Get booking items with dish details using a join query
+        $db = \Config\Database::connect();
+        $builder = $db->table('booking_items');
+        $builder->select('booking_items.*, dishes.name as dish_name, dishes.image, dishes.is_vegetarian');
+        $builder->join('dishes', 'dishes.id = booking_items.dish_id', 'left');
+        $builder->where('booking_items.booking_id', $booking['id']);
+        $items = $builder->get()->getResultArray();
 
         $processedItems = [];
         foreach ($items as $item) {
+            // Process image URL if available
+            $imageUrl = '';
+            if (!empty($item['image'])) {
+                $imageUrl = base_url('/uploads/dishes/' . $item['image']);
+            }
+
+            // Use dish name from join or default to Unknown Dish
+            $dishName = !empty($item['dish_name']) ? $item['dish_name'] : 'Unknown Dish';
+
             $processedItems[] = [
-                'id' => $item['id'],
-                'dish_id' => $item['dish_id'],
-                'dish_name' => $item['dish_name'],
+                'dish_name' => $dishName,
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
-                'subtotal' => $item['price'] * $item['quantity']
+                'image' => $imageUrl,
+                'dish_id' => $item['dish_id'] ?? null,
+                'is_vegetarian' => isset($item['is_vegetarian']) ? (bool)$item['is_vegetarian'] : null
             ];
         }
 
         // Get delivery slot if available
-        $slotName = 'Standard Delivery';
+        /* $slotName = 'Standard Delivery';
         if (!empty($booking['delivery_slot_id'])) {
             $slot = $this->deliverySlotModel->find($booking['delivery_slot_id']);
             if ($slot) {
                 $slotName = $slot['slot_name'];
             }
-        }
+        }*/
 
+        // Fixed response structure
         $response = [
             'status' => true,
             'data' => [
                 'id' => $booking['id'],
                 'booking_date' => $booking['booking_date'],
-                'delivery_slot' => $slotName,
+                //'delivery_slot' => $slotName,
                 'total_amount' => $booking['total_amount'],
                 'status' => $booking['status'],
                 'payment_method' => $booking['payment_method'],
@@ -241,7 +270,6 @@ class Booking extends BaseController
             $itemData = [
                 'booking_id' => $bookingId,
                 'dish_id' => $item['id'],
-                'dish_name' => $item['name'],
                 'quantity' => $item['quantity'],
                 'price' => $item['price']
             ];

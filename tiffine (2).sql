@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 20, 2025 at 01:52 PM
+-- Generation Time: May 21, 2025 at 02:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -105,8 +105,12 @@ INSERT INTO `bookings` (`id`, `user_id`, `booking_date`, `delivery_slot_id`, `to
 (16, 2, '2025-05-20', 1, 70.00, 'delivered', 'wallet', NULL, '2025-05-19 05:27:07', '2025-05-19 05:27:29'),
 (17, 2, '2025-05-20', 1, 80.00, 'cancelled', 'wallet', NULL, '2025-05-19 09:36:13', '2025-05-20 09:31:58'),
 (18, 1, '2025-05-21', 1, 70.00, 'delivered', 'wallet', NULL, '2025-05-20 06:09:53', '2025-05-20 06:11:10'),
-(19, 3, '2025-05-21', 1, 80.00, 'confirmed', 'cash', NULL, '2025-05-20 06:25:40', '2025-05-20 06:26:18'),
-(20, 2, '2025-05-21', 1, 70.00, 'cancelled', '', 'pay_QX7ljIRK2EXgH2', '2025-05-20 08:58:26', '2025-05-20 09:31:02');
+(19, 3, '2025-05-21', 1, 80.00, 'delivered', 'cash', NULL, '2025-05-20 06:25:40', '2025-05-21 08:11:13'),
+(20, 2, '2025-05-21', 1, 70.00, 'cancelled', '', 'pay_QX7ljIRK2EXgH2', '2025-05-20 08:58:26', '2025-05-20 09:31:02'),
+(21, 3, '2025-05-22', 1, 80.00, 'delivered', 'wallet', NULL, '2025-05-21 05:18:31', '2025-05-21 08:10:49'),
+(22, 3, '2025-05-22', 1, 70.00, 'delivered', 'wallet', NULL, '2025-05-21 05:32:02', '2025-05-21 08:10:56'),
+(23, 2, '2025-05-22', 1, 70.00, 'delivered', 'wallet', NULL, '2025-05-21 08:03:06', '2025-05-21 08:11:01'),
+(24, 2, '2025-05-22', 1, 140.00, 'delivered', 'wallet', NULL, '2025-05-21 08:10:12', '2025-05-21 08:11:06');
 
 -- --------------------------------------------------------
 
@@ -147,7 +151,12 @@ INSERT INTO `booking_items` (`id`, `booking_id`, `dish_id`, `quantity`, `price`,
 (25, 17, 3, 1, 80.00, '2025-05-19 09:36:13', '2025-05-19 09:36:13'),
 (26, 18, 1, 1, 70.00, '2025-05-20 06:09:53', '2025-05-20 06:09:53'),
 (27, 19, 3, 1, 80.00, '2025-05-20 06:25:40', '2025-05-20 06:25:40'),
-(28, 20, 2, 1, 70.00, '2025-05-20 08:58:26', '2025-05-20 08:58:26');
+(28, 20, 2, 1, 70.00, '2025-05-20 08:58:26', '2025-05-20 08:58:26'),
+(29, 21, 3, 1, 80.00, '2025-05-21 05:18:31', '2025-05-21 05:18:31'),
+(30, 22, 1, 1, 70.00, '2025-05-21 05:32:02', '2025-05-21 05:32:02'),
+(31, 23, 1, 1, 70.00, '2025-05-21 08:03:06', '2025-05-21 08:03:06'),
+(32, 24, 1, 1, 70.00, '2025-05-21 08:10:12', '2025-05-21 08:10:12'),
+(33, 24, 2, 1, 70.00, '2025-05-21 08:10:12', '2025-05-21 08:10:12');
 
 -- --------------------------------------------------------
 
@@ -297,8 +306,8 @@ CREATE TABLE `wallets` (
 
 INSERT INTO `wallets` (`id`, `user_id`, `balance`, `created_at`, `updated_at`) VALUES
 (1, 1, 650.00, '2025-05-16 13:03:22', '2025-05-20 06:09:53'),
-(2, 2, 1180.00, '2025-05-18 07:03:01', '2025-05-20 09:31:58'),
-(3, 3, 1480.00, '2025-05-18 07:07:19', '2025-05-19 05:18:20');
+(2, 2, 970.00, '2025-05-18 07:03:01', '2025-05-21 08:10:12'),
+(3, 3, 1330.00, '2025-05-18 07:07:19', '2025-05-21 05:32:02');
 
 -- --------------------------------------------------------
 
@@ -335,7 +344,11 @@ INSERT INTO `wallet_transactions` (`id`, `wallet_id`, `user_id`, `type`, `amount
 (12, 1, 1, 'credit', 1000.00, 'Wallet Recharge', '2025-05-18 10:02:01'),
 (13, 1, 1, 'debit', 80.00, 'Payment for tiffin booking', '2025-05-18 10:02:36'),
 (17, 2, 2, 'credit', 1000.00, 'Wallet Recharge via Razorpay (Payment ID: pay_QX7jE7mLrjEWOV)', '2025-05-20 08:56:05'),
-(18, 2, 2, 'credit', 80.00, 'Refund for cancelled booking #17', '2025-05-20 09:31:58');
+(18, 2, 2, 'credit', 80.00, 'Refund for cancelled booking #17', '2025-05-20 09:31:58'),
+(19, 3, 3, 'debit', 80.00, 'Payment for order #21', '2025-05-21 05:18:31'),
+(20, 3, 3, 'debit', 70.00, 'Payment for order #22', '2025-05-21 05:32:02'),
+(21, 2, 2, 'debit', 70.00, 'Payment for order #23', '2025-05-21 08:03:06'),
+(22, 2, 2, 'debit', 140.00, 'Payment for order #24', '2025-05-21 08:10:12');
 
 --
 -- Indexes for dumped tables
@@ -437,13 +450,13 @@ ALTER TABLE `banners`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `booking_items`
 --
 ALTER TABLE `booking_items`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `delivery_slots`
@@ -485,7 +498,7 @@ ALTER TABLE `wallets`
 -- AUTO_INCREMENT for table `wallet_transactions`
 --
 ALTER TABLE `wallet_transactions`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- Constraints for dumped tables
